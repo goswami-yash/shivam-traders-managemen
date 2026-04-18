@@ -37,11 +37,11 @@ app.use(helmet({
 // 3. CORS Configuration
 app.use(cors({
     origin: [
-        "http://localhost:8081",
-        "http://localhost:3001",
-        "http://192.168.0.58:8081",
-        "http://192.168.0.47:8081",
-        "http://192.168.0.43:3001"
+        "http://localhost:8082",
+        "http://localhost:5173",
+        "http://192.168.0.58:8082",
+        "http://192.168.0.43:3021",
+        "http://192.168.0.43:8082"
     ], 
     credentials: true
 }));
@@ -62,7 +62,7 @@ app.use(session({
     secret: config.get('App.config.sessionSecret'),
     resave: false,
     saveUninitialized: false,
-    name: "logistics_sid", // Custom cookie name for security
+    name: "Shivam_Traders", // Custom cookie name for security
     cookie: {
         secure: !isDev, 
         httpOnly: true,

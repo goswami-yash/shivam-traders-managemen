@@ -4,6 +4,7 @@ import httpStatus from "http-status";
 import config from "config";
 import APIError from "../../config/APIError.js";
 
+
 // compare password
 async function comparePassword(userPassword, dbPassword) {
     try {
@@ -13,28 +14,16 @@ async function comparePassword(userPassword, dbPassword) {
     }
   }
 
-
 async function loginUser(req,res,next){
   const mobileNo = req.body.mobile_no ;
-  const userPassword = req.body.password;
-
+  
   try {
-    const result = await pgClient.query("SELECT * FROM login_get_user_by_mobile($1)",[mobileNo]);
-
-    const dbPassword = result.rows[0].password;
-
-    const isPasswordMatch = await comparePassword(userPassword, dbPassword);
-
-    if (!isPasswordMatch) {
-        throw new APIError(
-          "Incorrect username password.",
-          httpStatus.UNAUTHORIZED,
-          true,
-          true
-        );
-      }
-
-      
+    const result = await pgClient.query("SELECT * FROM login_get_user_by_mobile($1)",
+      [mobileNo]
+  );
+  const user = result.rows[0];
+  await delete user.password;
+      return res.status(200).send({success : true , message :"Login Successful",result : user});
     
   } catch (error) {
     const err =
@@ -45,3 +34,33 @@ async function loginUser(req,res,next){
   next(err);
   }
 }
+
+async function logout(req, res, next) {
+  try {
+    // Convert session.destroy (callback API) → async/await safe
+    await new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //2. Logout passport (IMPORTANT)
+    req.logout(() => {});
+
+    // 3. Clear cookie from browser
+    res.clearCookie("Shivam_Traders", {
+      path: "/",
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: "lax", // must match your session config
+    });
+
+  res.send({success : true , message : "Logout successfully"})
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default {comparePassword,loginUser,logout};
