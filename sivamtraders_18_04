@@ -1,0 +1,2786 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.3 (Debian 16.3-1.pgdg120+1)
+-- Dumped by pg_dump version 16.8
+
+-- Started on 2026-04-18 12:17:48 UTC
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 931 (class 1247 OID 21631)
+-- Name: order_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.order_status AS ENUM (
+    'PENDING_STAFF',
+    'PENDING_ADMIN',
+    'COMPLETED',
+    'REJECTED'
+);
+
+
+ALTER TYPE public.order_status OWNER TO postgres;
+
+--
+-- TOC entry 276 (class 1255 OID 22023)
+-- Name: admin_create_customer(integer, character varying, character varying, character varying, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_customer(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_mobile_no character varying, in_email character varying, in_company_name character varying, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.customer (name_eng, name_guj, mobile_no, email, company_name,is_active)
+    VALUES (in_name_eng, in_name_guj, in_mobile_no,in_email, in_company_name,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_create_customer(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_mobile_no character varying, in_email character varying, in_company_name character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 275 (class 1255 OID 22024)
+-- Name: admin_create_customer_address(integer, integer, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_customer_address(in_admin_id integer, in_customer_id integer, in_name character varying, in_address character varying, in_active boolean) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.customer_address (customer_id, name, address,is_active)
+    VALUES (in_customer_id,in_name, in_address,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; $$;
+
+
+ALTER FUNCTION public.admin_create_customer_address(in_admin_id integer, in_customer_id integer, in_name character varying, in_address character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 278 (class 1255 OID 22043)
+-- Name: admin_create_items(integer, character varying, character varying, numeric, numeric, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_items(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_weight numeric, in_price numeric, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE 
+    n_id INT;
+BEGIN
+    -- 🔐 Check admin permission
+    PERFORM check_super_admin(in_admin_id);
+
+    -- ✅ Insert
+    INSERT INTO public.items (
+        name_eng, 
+        name_guj, 
+        weight, 
+        price, 
+        is_active
+    )
+    VALUES (
+        in_name_eng, 
+        in_name_guj, 
+        in_weight, 
+        in_price, 
+        in_active
+    )
+    RETURNING id INTO n_id;
+
+    RETURN n_id;
+
+-- ❗ Error handling
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Error while creating item: %', SQLERRM;
+END;
+$$;
+
+
+ALTER FUNCTION public.admin_create_items(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_weight numeric, in_price numeric, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 277 (class 1255 OID 22026)
+-- Name: admin_create_labourer(integer, character varying, character varying, character varying, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_labourer(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_mobile_no character varying, in_aadhar_no character varying, in_addr character varying, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.labourer (name_eng, name_guj, mobile_no, aadhar_no,address,is_active)
+    VALUES (in_name_eng, in_name_guj,in_mobile_no,in_aadhar_no, in_addr,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; $$;
+
+
+ALTER FUNCTION public.admin_create_labourer(in_admin_id integer, in_name_eng character varying, in_name_guj character varying, in_mobile_no character varying, in_aadhar_no character varying, in_addr character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 251 (class 1255 OID 22025)
+-- Name: admin_create_labourer_assignment(integer, integer, integer, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_labourer_assignment(in_admin_id integer, in_labourer_id integer, in_plot_id integer, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.labourer_assignment (labourer_id, plot_id,is_active)
+    VALUES (in_labourer_id,in_plot_id,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_create_labourer_assignment(in_admin_id integer, in_labourer_id integer, in_plot_id integer, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 254 (class 1255 OID 22027)
+-- Name: admin_create_partner_master(integer, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_partner_master(in_admin_id integer, in_no character varying, in_mobile_no character varying, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.partner_master (name, mobile_no,is_active)
+    VALUES (in_no, in_mobile_no,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_create_partner_master(in_admin_id integer, in_no character varying, in_mobile_no character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 274 (class 1255 OID 22022)
+-- Name: admin_create_plot_master(integer, character varying, character varying, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_plot_master(in_admin_id integer, in_no character varying, in_name_eng character varying, in_name_guj character varying, in_addr character varying, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.plot (plot_number, plot_name_eng, plot_name_guj, address,is_active)
+    VALUES (in_no, in_name_eng, in_name_guj, in_addr,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; $$;
+
+
+ALTER FUNCTION public.admin_create_plot_master(in_admin_id integer, in_no character varying, in_name_eng character varying, in_name_guj character varying, in_addr character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 256 (class 1255 OID 22028)
+-- Name: admin_create_transporter(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_transporter(in_admin_id integer, in_name character varying, in_mobile_no character varying, in_company_name character varying, in_bank_name character varying, in_account_no character varying, in_ifsc_code character varying, in_email character varying, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.transporter (name, mobile_no,company_name,bank_name,account_no,ifsc_code,email,is_active)
+    VALUES (in_name, in_mobile_no,in_company_name,in_bank_name,in_account_no,in_ifsc_code,in_email,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_create_transporter(in_admin_id integer, in_name character varying, in_mobile_no character varying, in_company_name character varying, in_bank_name character varying, in_account_no character varying, in_ifsc_code character varying, in_email character varying, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 273 (class 1255 OID 21898)
+-- Name: admin_create_users(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, boolean, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_create_users(in_created_by integer, in_name character varying, in_mobile character varying, in_password character varying, in_role character varying, in_email character varying DEFAULT NULL::character varying, in_license_no character varying DEFAULT NULL::character varying, in_aadhar_no character varying DEFAULT NULL::character varying, in_address character varying DEFAULT NULL::character varying, in_super_admin boolean DEFAULT false, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    new_id INT;
+BEGIN
+    -- ✅ Use your existing check function
+    PERFORM check_super_admin(in_created_by);
+
+    -- Logic for DRIVER vs OTHER roles
+    IF in_role = 'DRIVER' THEN
+        INSERT INTO public.admin (name, mobile_no, password, role, email, is_super_admin, is_active)
+        VALUES (in_name, in_mobile, in_password, 'DRIVER', in_email, false, in_active)
+        RETURNING id INTO new_id;
+
+        INSERT INTO public.driver (driver_id, license_no, aadhar_no, address)
+        VALUES (new_id, in_license_no, in_aadhar_no, in_address);
+    ELSE
+        INSERT INTO public.admin (name, mobile_no, password, role, email, is_super_admin, is_active)
+        VALUES (in_name, in_mobile, in_password, in_role, in_email, in_super_admin, in_active)
+        RETURNING id INTO new_id;
+    END IF;
+
+    RETURN new_id;
+END;
+$$;
+
+
+ALTER FUNCTION public.admin_create_users(in_created_by integer, in_name character varying, in_mobile character varying, in_password character varying, in_role character varying, in_email character varying, in_license_no character varying, in_aadhar_no character varying, in_address character varying, in_super_admin boolean, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 257 (class 1255 OID 22029)
+-- Name: admin_insert_vehicle_details(integer, character varying, character varying, character varying, character varying, character varying, character varying, integer, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_insert_vehicle_details(in_admin_id integer, in_vehicle_no character varying, in_rc_number character varying, in_insurance_no character varying, in_puc_no character varying, in_permit_no character varying, in_fitness_no character varying, in_transporter_id integer, in_active boolean DEFAULT true) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.vehicle (vehicle_no, rc_number,insurance_number,puc_number,permit_number,fitness_number,transporter_id,is_active)
+    VALUES (in_vehicle_no, in_rc_number,in_insurance_no,in_puc_no,in_permit_no,in_fitness_no,in_transporter_id,in_active) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_insert_vehicle_details(in_admin_id integer, in_vehicle_no character varying, in_rc_number character varying, in_insurance_no character varying, in_puc_no character varying, in_permit_no character varying, in_fitness_no character varying, in_transporter_id integer, in_active boolean) OWNER TO postgres;
+
+--
+-- TOC entry 259 (class 1255 OID 22030)
+-- Name: admin_insert_vehicle_documents(integer, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.admin_insert_vehicle_documents(in_admin_id integer, in_vehicle_id integer, in_document_type character varying, in_file_url character varying) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE n_id INT;
+BEGIN
+    PERFORM check_super_admin(in_admin_id);
+    INSERT INTO public.vehicle_documents (vehicle_id, document_type,file_url)
+    VALUES (in_vehicle_id, in_document_type,in_file_url) RETURNING id INTO n_id;
+    RETURN n_id;
+END; 
+$$;
+
+
+ALTER FUNCTION public.admin_insert_vehicle_documents(in_admin_id integer, in_vehicle_id integer, in_document_type character varying, in_file_url character varying) OWNER TO postgres;
+
+--
+-- TOC entry 252 (class 1255 OID 21897)
+-- Name: check_super_admin(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.check_super_admin(in_admin_id integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM admin 
+        WHERE id = in_admin_id 
+        AND is_super_admin = TRUE
+        AND is_active = TRUE
+    ) THEN
+        RAISE EXCEPTION 'Permission denied: Only super admin allowed';
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION public.check_super_admin(in_admin_id integer) OWNER TO postgres;
+
+--
+-- TOC entry 253 (class 1255 OID 21720)
+-- Name: generate_order_number(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.generate_order_number() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    curr_date_prefix TEXT;
+    next_val BIGINT;
+BEGIN
+    -- Prefix: ORD + YYMM (India timezone)
+    curr_date_prefix := 'ORD' || TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata', 'YYMM');
+
+    -- Get next sequence value (SAFE)
+    next_val := nextval('order_number_seq');
+
+    -- Format: ORD + YYMM + 0001
+    NEW.order_number := curr_date_prefix || LPAD(next_val::TEXT, 4, '0');
+
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.generate_order_number() OWNER TO postgres;
+
+--
+-- TOC entry 281 (class 1255 OID 63317)
+-- Name: get_diesel_details(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_diesel_details(p_order_id character varying) RETURNS TABLE(order_id character varying, ord_seq_no integer, price numeric, liters numeric, total_price numeric, diesel_img_url character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        od.order_id,
+		od.ord_seq_no,
+		od.price,
+		od.liters,
+		od.total_price,
+		od.diesel_img_url
+    FROM order_diesel_log od
+    WHERE od.order_id = p_order_id;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_diesel_details(p_order_id character varying) OWNER TO postgres;
+
+--
+-- TOC entry 250 (class 1255 OID 21879)
+-- Name: login_get_user_by_mobile(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.login_get_user_by_mobile(in_mobileno character varying) RETURNS TABLE(id integer, name character varying, mobile_no character varying, password character varying, role character varying, is_super_admin boolean)
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    found_rows INTEGER;
+BEGIN
+    RETURN QUERY
+    SELECT 
+        a.id, 
+        a.name, 
+        a.mobile_no, 
+        a.password, 
+        a.role, 
+        a.is_super_admin
+    FROM public.admin a
+    WHERE a.mobile_no = in_mobileno 
+    AND a.is_active = true;
+
+    GET DIAGNOSTICS found_rows = ROW_COUNT;
+
+    -- If no active user is found, raise a custom exception
+    IF found_rows = 0 THEN
+        RAISE EXCEPTION 'User account is inactive or does not exist.' 
+        USING ERRCODE = '22222';
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION public.login_get_user_by_mobile(in_mobileno character varying) OWNER TO postgres;
+
+--
+-- TOC entry 286 (class 1255 OID 63315)
+-- Name: update_order_with_details(character varying, integer, integer, character varying, numeric, integer, integer, numeric, numeric, numeric, numeric, jsonb, jsonb); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.update_order_with_details(p_order_id character varying, p_vehicle_id integer, p_transporter_id integer, p_transporter_name character varying, p_total_loaded_weight numeric, p_start_odometer integer, p_end_odometer integer, p_advance_bhada numeric, p_other_kharch numeric, p_vehicle_rate_per_ton numeric, p_trip_allowance numeric, p_labour jsonb, p_delivery jsonb) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    l JSONB;
+    d JSONB;
+    cnt INT;
+BEGIN
+    -- ✅ 1. Update main order
+    UPDATE orders
+    SET vehicle_id = p_vehicle_id,
+        transporter_id = p_transporter_id,
+        transporter_name = p_transporter_name,
+        total_loaded_weight = p_total_loaded_weight,
+        start_odometer = p_start_odometer,
+        end_odometer = p_end_odometer,
+        advance_bhada = p_advance_bhada,
+        other_kharch = p_other_kharch,
+        vehicle_rate_per_ton = p_vehicle_rate_per_ton,
+        trip_allowance = p_trip_allowance
+    WHERE order_number = p_order_id;
+
+    --------------------------------------------------
+    -- 🟢 LABOUR
+    --------------------------------------------------
+    DELETE FROM order_labourers WHERE order_id = p_order_id;
+
+    IF p_labour IS NOT NULL THEN
+        cnt := 0;
+
+        FOR l IN SELECT * FROM jsonb_array_elements(p_labour)
+        LOOP
+            cnt := cnt + 1;
+
+            IF cnt > 3 THEN
+                RAISE EXCEPTION 'Max 3 labour allowed';
+            END IF;
+
+            INSERT INTO order_labourers(
+                order_id,
+                assin_plot_id,
+                item_type,
+                weight,
+                plot_id,
+                labourer_id,
+                ord_seq_no
+            )
+            VALUES (
+                p_order_id,
+                (l->>'assignment_id')::INT,
+                (l->>'item_type')::INT,
+                (l->>'weight')::NUMERIC,
+                (l->>'plot_id')::INT,
+                (l->>'labourer_id')::INT,
+                cnt
+            );
+        END LOOP;
+    END IF;
+
+    --------------------------------------------------
+    -- 🟡 DELIVERY
+    --------------------------------------------------
+    DELETE FROM order_deliveries WHERE order_id = p_order_id;
+
+    IF p_delivery IS NOT NULL THEN
+        cnt := 0;
+
+        FOR d IN SELECT * FROM jsonb_array_elements(p_delivery)
+        LOOP
+            cnt := cnt + 1;
+
+            IF cnt > 5 THEN
+                RAISE EXCEPTION 'Max 5 customers allowed';
+            END IF;
+
+            INSERT INTO order_deliveries(
+                order_id,
+                customer_id,
+                delivery_address_id,
+                dispatch_weight,
+                item_type,
+                delivery_sequence
+            )
+            VALUES (
+                p_order_id,
+                (d->>'customer_id')::INT,
+                (d->>'customer_address_id')::INT,
+                (d->>'weight')::NUMERIC,
+                (d->>'item_type')::INT,
+                cnt
+            );
+        END LOOP;
+    END IF;
+
+END;
+$$;
+
+
+ALTER FUNCTION public.update_order_with_details(p_order_id character varying, p_vehicle_id integer, p_transporter_id integer, p_transporter_name character varying, p_total_loaded_weight numeric, p_start_odometer integer, p_end_odometer integer, p_advance_bhada numeric, p_other_kharch numeric, p_vehicle_rate_per_ton numeric, p_trip_allowance numeric, p_labour jsonb, p_delivery jsonb) OWNER TO postgres;
+
+--
+-- TOC entry 282 (class 1255 OID 22060)
+-- Name: user_add_diesel_to_order(character varying, jsonb); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_add_diesel_to_order(in_order_id character varying, in_diesel jsonb) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE 
+    d JSONB;
+    cnt INT;
+    existing_cnt INT;
+BEGIN
+
+    -- Existing count
+    SELECT COUNT(*) INTO existing_cnt
+    FROM order_diesel_log
+    WHERE order_id = in_order_id;
+
+    cnt := existing_cnt;
+
+    --------------------------------------------------
+    -- LOOP JSON ARRAY
+    --------------------------------------------------
+    FOR d IN SELECT * FROM jsonb_array_elements(in_diesel)
+    LOOP
+        cnt := cnt + 1;
+
+        -- MAX 3 CHECK
+        IF cnt > 3 THEN
+            RAISE EXCEPTION 'Max 3 diesel entries allowed'
+            USING ERRCODE = '22222';
+        END IF;
+
+        -- IMAGE VALIDATION
+        IF (
+            d->>'price' IS NOT NULL OR
+            d->>'liters' IS NOT NULL OR
+            d->>'total_price' IS NOT NULL
+        ) AND (d->>'diesel_img_url') IS NULL THEN
+            RAISE EXCEPTION 'Diesel image is required'
+            USING ERRCODE = '22222';
+        END IF;
+
+        INSERT INTO order_diesel_log(
+            order_id,
+            ord_seq_no,
+            price,
+            liters,
+            total_price,
+            location,
+            time_at,
+            diesel_img_url
+        )
+        VALUES (
+            in_order_id,
+            cnt,
+            (d->>'price')::NUMERIC,
+            (d->>'liters')::NUMERIC,
+            (d->>'total_price')::NUMERIC,
+            (d->>'location'),
+            (d->>'time_at')::TIMESTAMP,
+            (d->>'diesel_img_url')
+        );
+
+    END LOOP;
+
+END;
+$$;
+
+
+ALTER FUNCTION public.user_add_diesel_to_order(in_order_id character varying, in_diesel jsonb) OWNER TO postgres;
+
+--
+-- TOC entry 287 (class 1255 OID 88196)
+-- Name: user_add_diesel_to_order_time(character varying, jsonb); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_add_diesel_to_order_time(in_order_id character varying, in_diesel jsonb) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE 
+    d JSONB;
+    existing_ids INT[];
+    seq INT := 0;
+BEGIN
+
+    --------------------------------------------------
+    -- STORE INCOMING IDS
+    --------------------------------------------------
+    SELECT array_agg((x->>'id')::int)
+    INTO existing_ids
+    FROM jsonb_array_elements(in_diesel) x
+    WHERE x->>'id' IS NOT NULL;
+
+    --------------------------------------------------
+    -- DELETE REMOVED ROWS FIRST
+    --------------------------------------------------
+    DELETE FROM order_diesel_log
+    WHERE order_id = in_order_id
+    AND (existing_ids IS NULL OR id <> ALL(existing_ids));
+
+    --------------------------------------------------
+    -- LOOP JSON (REBUILD SEQUENCE)
+    --------------------------------------------------
+    FOR d IN SELECT * FROM jsonb_array_elements(in_diesel)
+    LOOP
+        seq := seq + 1;
+
+        -- LIMIT CHECK (BEFORE INSERT)
+        IF seq > 3 THEN
+            RAISE EXCEPTION 'Max 3 diesel entries allowed';
+        END IF;
+
+        -- IMAGE VALIDATION
+        IF (
+            d->>'price' IS NOT NULL OR
+            d->>'liters' IS NOT NULL OR
+            d->>'total_price' IS NOT NULL
+        ) AND (d->>'diesel_img_url') IS NULL THEN
+            RAISE EXCEPTION 'Diesel image is required';
+        END IF;
+
+        --------------------------------------------------
+        -- UPDATE
+        --------------------------------------------------
+        IF (d->>'id') IS NOT NULL THEN
+
+            UPDATE order_diesel_log
+            SET
+                ord_seq_no = seq,  -- ✅ controlled here
+                price = (d->>'price')::NUMERIC,
+                liters = (d->>'liters')::NUMERIC,
+                total_price = (d->>'total_price')::NUMERIC,
+                diesel_img_url = d->>'diesel_img_url',
+                location = d->>'location',
+                time_at = (d->>'time_at')::TIMESTAMP
+            WHERE id = (d->>'id')::INT;
+
+        --------------------------------------------------
+        -- INSERT
+        --------------------------------------------------
+        ELSE
+
+            INSERT INTO order_diesel_log(
+                order_id,
+                ord_seq_no,
+                price,
+                liters,
+                total_price,
+                location,
+                time_at,
+                diesel_img_url
+            )
+            VALUES (
+                in_order_id,
+                seq,  -- ✅ controlled sequence
+                (d->>'price')::NUMERIC,
+                (d->>'liters')::NUMERIC,
+                (d->>'total_price')::NUMERIC,
+                d->>'location',
+                (d->>'time_at')::TIMESTAMP,
+                d->>'diesel_img_url'
+            );
+
+        END IF;
+
+    END LOOP;
+
+END;
+$$;
+
+
+ALTER FUNCTION public.user_add_diesel_to_order_time(in_order_id character varying, in_diesel jsonb) OWNER TO postgres;
+
+--
+-- TOC entry 285 (class 1255 OID 22056)
+-- Name: user_create_order(integer, integer, numeric, character varying, integer, integer, numeric, numeric, numeric, numeric, integer, character varying, jsonb, jsonb); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_create_order(in_vehicle_id integer, in_driver_id integer, in_total_loaded_weight numeric, in_loading_bilty_url character varying, in_start_odometer integer DEFAULT 0, in_end_odometer integer DEFAULT 0, in_advance_bhada numeric DEFAULT 0, in_other_kharch numeric DEFAULT 0, in_vehicle_rate_per_ton numeric DEFAULT 0, in_trip_allowance numeric DEFAULT 0, in_transporter_id integer DEFAULT 0, in_transporter_name character varying DEFAULT NULL::character varying, in_labour jsonb DEFAULT NULL::jsonb, in_delivery jsonb DEFAULT NULL::jsonb) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    in_order_number character varying;
+    l JSONB;
+    d JSONB;
+    cnt INT;
+    
+BEGIN
+
+    --------------------------------------------------
+    -- 🔴 CREATE ORDER
+    --------------------------------------------------
+    -- IF in_vehicle_id IS NULL OR in_driver_id IS NULL OR 
+    --    in_total_loaded_weight IS NULL OR in_loading_bilty_url IS NULL THEN
+    --     RAISE EXCEPTION 'Required fields missing'
+    --     USING ERRCODE = '22222';
+    -- END IF;
+IF in_vehicle_id IS NULL THEN
+    RAISE EXCEPTION 'vehicle_id is required'
+    USING ERRCODE = '22222';
+END IF;
+
+IF in_driver_id IS NULL THEN
+    RAISE EXCEPTION 'driver_id is required'
+    USING ERRCODE = '22222';
+END IF;
+
+IF in_total_loaded_weight IS NULL THEN
+    RAISE EXCEPTION 'total_loaded_weight is required'
+    USING ERRCODE = '22222';
+END IF;
+
+IF in_loading_bilty_url IS NULL THEN
+    RAISE EXCEPTION 'loading_bilty_url is required'
+    USING ERRCODE = '22222';
+END IF;
+ 
+    INSERT INTO orders(
+       order_number,
+        vehicle_id,
+        driver_id,
+        total_loaded_weight,
+        loading_bilty_url,
+        start_odometer,
+        end_odometer,
+        advance_bhada,
+        other_kharch,
+        vehicle_rate_per_ton,
+        trip_allowance,
+        transporter_id,
+        transporter_name,
+        status
+    )
+    VALUES (
+        in_order_number,
+        in_vehicle_id,
+        in_driver_id,
+        in_total_loaded_weight,
+        in_loading_bilty_url,
+        in_start_odometer,
+        in_end_odometer,
+        in_advance_bhada,
+        in_other_kharch,
+        in_vehicle_rate_per_ton,
+        in_trip_allowance,
+        in_transporter_id,
+        in_transporter_name,
+        'PENDING_STAFF'
+    )RETURNING order_number INTO in_order_number;
+
+    --------------------------------------------------
+    -- 🟡 LABOUR INSERT (JSON)
+    --------------------------------------------------
+    IF in_labour IS NOT NULL THEN
+        cnt := 0;
+
+        FOR l IN SELECT * FROM jsonb_array_elements(in_labour)
+        LOOP
+            cnt := cnt + 1;
+
+            IF cnt > 3 THEN
+                RAISE EXCEPTION 'Max 3 labour allowed'
+                USING ERRCODE = '22222';
+            END IF;
+
+            INSERT INTO order_labourers(
+                order_id,
+                assin_plot_id,
+                item_type,
+                weight,
+                plot_id,
+                labourer_id,
+				ord_seq_no
+                
+            )
+            VALUES (
+                in_order_number,
+                (l->>'assignment_id')::INT,
+                (l->>'item_type'),
+                (l->>'weight')::NUMERIC,
+                (l->>'plot_id')::INT,
+                (l->>'labourer_id')::INT,
+				cnt
+            );
+        END LOOP;
+    END IF;
+
+    --------------------------------------------------
+    -- 🟡 DELIVERY INSERT (JSON)
+    --------------------------------------------------
+    IF in_delivery IS NOT NULL THEN
+        cnt := 0;
+
+        FOR d IN SELECT * FROM jsonb_array_elements(in_delivery)
+        LOOP
+            cnt := cnt + 1;
+
+            IF cnt > 5 THEN
+                RAISE EXCEPTION 'Max 5 customers allowed'
+                USING ERRCODE = '22222';
+            END IF;
+
+            INSERT INTO order_deliveries(
+                order_id,
+                customer_id,
+                delivery_address_id,
+                dispatch_weight,
+                item_type,
+                delivery_sequence
+                
+            )
+            VALUES (
+                in_order_number,
+                (d->>'customer_id')::INT,
+                (d->>'customer_address_id')::INT,
+                (d->>'weight')::NUMERIC,
+                (d->>'item_type'),
+                cnt
+            );
+        END LOOP;
+    END IF;
+
+    RETURN in_order_number;
+
+END;
+$$;
+
+
+ALTER FUNCTION public.user_create_order(in_vehicle_id integer, in_driver_id integer, in_total_loaded_weight numeric, in_loading_bilty_url character varying, in_start_odometer integer, in_end_odometer integer, in_advance_bhada numeric, in_other_kharch numeric, in_vehicle_rate_per_ton numeric, in_trip_allowance numeric, in_transporter_id integer, in_transporter_name character varying, in_labour jsonb, in_delivery jsonb) OWNER TO postgres;
+
+--
+-- TOC entry 283 (class 1255 OID 22061)
+-- Name: user_get_order_full_details(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_full_details(in_order_id character varying) RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    result JSONB;
+BEGIN
+
+    SELECT jsonb_build_object(
+
+        -- 🔴 ORDER MAIN
+        'order', (
+            SELECT row_to_json(o)
+            FROM orders o
+            WHERE o.order_number = in_order_id
+        ),
+
+        -- 🟡 LABOUR LIST
+        'labour', (
+            SELECT COALESCE(jsonb_agg(l), '[]'::jsonb)
+            FROM order_labourers l
+            WHERE l.order_id = in_order_id
+        ),
+
+        -- 🟡 DELIVERY LIST
+        'delivery', (
+            SELECT COALESCE(jsonb_agg(d), '[]'::jsonb)
+            FROM order_deliveries d
+            WHERE d.order_id = in_order_id
+        ),
+
+        -- 🟡 DIESEL LIST
+        'diesel', (
+            SELECT COALESCE(jsonb_agg(dl), '[]'::jsonb)
+            FROM order_diesel_log dl
+            WHERE dl.order_id = in_order_id
+        )
+
+    ) INTO result;
+
+    RETURN result;
+
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_full_details(in_order_id character varying) OWNER TO postgres;
+
+--
+-- TOC entry 255 (class 1255 OID 54814)
+-- Name: user_get_order_time_customers_details(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_time_customers_details() RETURNS TABLE(customer_id integer, company_name character varying, customer_address_id integer, address character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.id AS customer_id,
+        c.company_name,
+        ca.id AS customer_address_id,
+        ca.address
+    FROM public.customer c
+    JOIN public.customer_address ca 
+        ON c.id = ca.customer_id
+    WHERE 
+        c.is_active = true 
+        AND ca.is_active = true;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_time_customers_details() OWNER TO postgres;
+
+--
+-- TOC entry 280 (class 1255 OID 22042)
+-- Name: user_get_order_time_details(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_time_details() RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    result jsonb;
+BEGIN
+    SELECT jsonb_build_object(
+
+        -- 1. Customers
+        'customers', (
+            SELECT COALESCE(jsonb_agg(jsonb_build_object(
+                'customer_id', c.id,
+                'company_name', c.company_name,
+                'customer_address_id', ca.id,
+                'address', ca.address
+            )), '[]'::jsonb)
+            FROM public.customer c
+            JOIN public.customer_address ca ON c.id = ca.customer_id
+            WHERE c.is_active = true AND ca.is_active = true
+        ),
+
+        -- 2. Items
+        'items', (
+            SELECT COALESCE(jsonb_agg(jsonb_build_object(
+                'id', id,
+                'name_eng', name_eng,
+                'name_guj', name_guj,
+                'price', price
+            )), '[]'::jsonb)
+            FROM public.items 
+            WHERE is_active = true
+        ),
+
+        -- 3. Labourers
+        'labourers', (
+            SELECT COALESCE(jsonb_agg(jsonb_build_object(
+                'labourer_id', l.id,
+                'name_eng', l.name_eng,
+                'name_guj', l.name_guj,
+                'assignment_id', la.id,
+				'plot_id', la.plot_id,
+				'plot_name_eng' , p.plot_name_eng,
+				'plot_name_guj' , p.plot_name_guj
+            )), '[]'::jsonb)
+            FROM public.labourer l
+            JOIN public.labourer_assignment la ON l.id = la.labourer_id
+			JOIN public.plot p ON p.id = la.plot_id
+            WHERE l.is_active = true AND la.is_active = true
+        ),
+
+        -- 4. Vehicles (WITH transporter)
+        'vehicles', (
+            SELECT COALESCE(jsonb_agg(jsonb_build_object(
+                'id', v.id,
+                'vehicle_no', v.vehicle_no,
+                'transporter_id', v.transporter_id,
+                'transporter_name', t.name
+            )), '[]'::jsonb)
+            FROM public.vehicle v
+            LEFT JOIN public.transporter t 
+                ON v.transporter_id = t.id
+            WHERE v.is_active = true
+        )
+
+    ) INTO result;
+
+    RETURN result;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_time_details() OWNER TO postgres;
+
+--
+-- TOC entry 258 (class 1255 OID 54815)
+-- Name: user_get_order_time_items_details(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_time_items_details() RETURNS TABLE(id integer, name_eng character varying, name_guj character varying, price numeric)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        i.id,
+        i.name_eng,
+        i.name_guj ,
+        i.price
+        FROM public.items i
+        WHERE is_active = true;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_time_items_details() OWNER TO postgres;
+
+--
+-- TOC entry 264 (class 1255 OID 54816)
+-- Name: user_get_order_time_labourers_details(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_time_labourers_details() RETURNS TABLE(labourer_id integer, name_eng character varying, name_guj character varying, assignment_id integer, plot_id integer, plot_number character varying, plot_name_eng character varying, plot_name_guj character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        l.id,
+        l.name_eng,
+        l.name_guj ,
+        la.id,
+		la.plot_id,
+		p.plot_number,
+		p.plot_name_eng,
+		p.plot_name_guj
+         FROM public.labourer l
+            JOIN public.labourer_assignment la ON l.id = la.labourer_id
+			JOIN public.plot p ON p.id = la.plot_id
+            WHERE l.is_active = true AND la.is_active = true;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_time_labourers_details() OWNER TO postgres;
+
+--
+-- TOC entry 271 (class 1255 OID 54817)
+-- Name: user_get_order_time_vehicles_details(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_get_order_time_vehicles_details() RETURNS TABLE(id integer, vehicle_no character varying, transporter_id integer, transporter_name character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+         v.id,
+		 v.vehicle_no,
+		 v.transporter_id,
+		 t.name as transporter_name
+         FROM public.vehicle v
+            LEFT JOIN public.transporter t 
+                ON v.transporter_id = t.id
+            WHERE v.is_active = true;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_get_order_time_vehicles_details() OWNER TO postgres;
+
+--
+-- TOC entry 279 (class 1255 OID 54819)
+-- Name: user_orders_list_get(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_orders_list_get(p_user_id integer) RETURNS TABLE(order_number character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT o.order_number
+    FROM orders o
+     WHERE o.driver_id = p_user_id
+    ORDER BY o.order_number DESC
+    LIMIT 5;
+END;
+$$;
+
+
+ALTER FUNCTION public.user_orders_list_get(p_user_id integer) OWNER TO postgres;
+
+--
+-- TOC entry 284 (class 1255 OID 54865)
+-- Name: user_update_order(integer, integer, integer, numeric, numeric, numeric); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_update_order(in_order_id integer, in_start_odometer integer DEFAULT 0, in_end_odometer integer DEFAULT 0, in_advance_bhada numeric DEFAULT 0, in_other_kharch numeric DEFAULT 0, in_trip_allowance numeric DEFAULT 0) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    v_order_number character varying;
+BEGIN
+
+    --------------------------------------------------
+    -- VALIDATION
+    --------------------------------------------------
+    IF in_order_id IS NULL THEN
+        RAISE EXCEPTION 'order_id required';
+    END IF;
+
+    --------------------------------------------------
+    -- UPDATE ORDER
+    --------------------------------------------------
+    UPDATE orders
+    SET  
+        start_odometer = in_start_odometer,
+        end_odometer = in_end_odometer,
+        advance_bhada = in_advance_bhada,
+        other_kharch = in_other_kharch,
+        trip_allowance = in_trip_allowance
+    WHERE id = in_order_id
+    RETURNING order_number INTO v_order_number;
+
+
+END;
+$$;
+
+
+ALTER FUNCTION public.user_update_order(in_order_id integer, in_start_odometer integer, in_end_odometer integer, in_advance_bhada numeric, in_other_kharch numeric, in_trip_allowance numeric) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 218 (class 1259 OID 21447)
+-- Name: admin; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.admin (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    mobile_no character varying NOT NULL,
+    password character varying NOT NULL,
+    role character varying DEFAULT 'DRIVER'::character varying,
+    email character varying,
+    is_super_admin boolean DEFAULT false,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text),
+    CONSTRAINT admin_role_check CHECK (((role)::text = ANY ((ARRAY['DRIVER'::character varying, 'CUSTOMER'::character varying, 'STAFF'::character varying, 'ADMIN'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.admin OWNER TO postgres;
+
+--
+-- TOC entry 217 (class 1259 OID 21446)
+-- Name: admin_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.admin_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.admin_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3601 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: admin_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.admin_id_seq OWNED BY public.admin.id;
+
+
+--
+-- TOC entry 228 (class 1259 OID 21536)
+-- Name: customer; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customer (
+    id integer NOT NULL,
+    name_eng character varying NOT NULL,
+    name_guj character varying,
+    mobile_no character varying,
+    email character varying,
+    company_name character varying,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.customer OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1259 OID 21551)
+-- Name: customer_address; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customer_address (
+    id integer NOT NULL,
+    customer_id integer NOT NULL,
+    address character varying NOT NULL,
+    is_active boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.customer_address OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1259 OID 21550)
+-- Name: customer_address_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_address_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.customer_address_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3602 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: customer_address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_address_id_seq OWNED BY public.customer_address.id;
+
+
+--
+-- TOC entry 227 (class 1259 OID 21535)
+-- Name: customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.customer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3603 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_id_seq OWNED BY public.customer.id;
+
+
+--
+-- TOC entry 216 (class 1259 OID 21420)
+-- Name: driver; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.driver (
+    id integer NOT NULL,
+    driver_id integer,
+    license_no character varying,
+    aadhar_no character varying,
+    address character varying
+);
+
+
+ALTER TABLE public.driver OWNER TO postgres;
+
+--
+-- TOC entry 215 (class 1259 OID 21419)
+-- Name: driver_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.driver_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.driver_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3604 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: driver_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.driver_id_seq OWNED BY public.driver.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 21584)
+-- Name: items; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.items (
+    id integer NOT NULL,
+    name_eng character varying NOT NULL,
+    name_guj character varying,
+    weight numeric(6,2) DEFAULT 0,
+    price numeric(6,2) DEFAULT 0,
+    is_active boolean DEFAULT true
+);
+
+
+ALTER TABLE public.items OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 21583)
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.items_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.items_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3605 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
+
+
+--
+-- TOC entry 226 (class 1259 OID 21515)
+-- Name: labourer_assignment; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.labourer_assignment (
+    id integer NOT NULL,
+    labourer_id integer NOT NULL,
+    plot_id integer NOT NULL,
+    is_active boolean,
+    assigned_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.labourer_assignment OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 21514)
+-- Name: labor_assignment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.labor_assignment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.labor_assignment_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3606 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: labor_assignment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.labor_assignment_id_seq OWNED BY public.labourer_assignment.id;
+
+
+--
+-- TOC entry 240 (class 1259 OID 21679)
+-- Name: labourer; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.labourer (
+    id integer NOT NULL,
+    name_eng character varying NOT NULL,
+    name_guj character varying,
+    mobile_no character varying,
+    aadhar_no character varying,
+    address character varying,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.labourer OWNER TO postgres;
+
+--
+-- TOC entry 239 (class 1259 OID 21678)
+-- Name: laborer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.laborer_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.laborer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3607 (class 0 OID 0)
+-- Dependencies: 239
+-- Name: laborer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.laborer_id_seq OWNED BY public.labourer.id;
+
+
+--
+-- TOC entry 246 (class 1259 OID 21712)
+-- Name: order_deliveries; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.order_deliveries (
+    id integer NOT NULL,
+    order_id character varying,
+    customer_id integer,
+    delivery_address_id integer,
+    dispatch_bilty_no character varying,
+    dispatch_weight numeric(10,2),
+    delivery_sequence integer,
+    bill_no character varying,
+    invoice_no character varying,
+    item_type character varying
+);
+
+
+ALTER TABLE public.order_deliveries OWNER TO postgres;
+
+--
+-- TOC entry 245 (class 1259 OID 21711)
+-- Name: order_deliveries_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.order_deliveries_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.order_deliveries_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3608 (class 0 OID 0)
+-- Dependencies: 245
+-- Name: order_deliveries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.order_deliveries_id_seq OWNED BY public.order_deliveries.id;
+
+
+--
+-- TOC entry 242 (class 1259 OID 21692)
+-- Name: order_diesel_log; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.order_diesel_log (
+    id integer NOT NULL,
+    order_id character varying NOT NULL,
+    ord_seq_no integer NOT NULL,
+    price numeric(6,2),
+    liters numeric(6,2),
+    total_price numeric(8,2),
+    time_at timestamp without time zone,
+    location character varying,
+    diesel_img_url character varying,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.order_diesel_log OWNER TO postgres;
+
+--
+-- TOC entry 241 (class 1259 OID 21691)
+-- Name: order_diesel_log_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.order_diesel_log_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.order_diesel_log_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3609 (class 0 OID 0)
+-- Dependencies: 241
+-- Name: order_diesel_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.order_diesel_log_id_seq OWNED BY public.order_diesel_log.id;
+
+
+--
+-- TOC entry 244 (class 1259 OID 21702)
+-- Name: order_labourers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.order_labourers (
+    id integer NOT NULL,
+    order_id character varying,
+    assin_plot_id integer,
+    item_type character varying NOT NULL,
+    weight numeric(6,2),
+    plot_id integer,
+    labourer_id integer,
+    ord_seq_no integer,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.order_labourers OWNER TO postgres;
+
+--
+-- TOC entry 243 (class 1259 OID 21701)
+-- Name: order_laborers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.order_laborers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.order_laborers_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3610 (class 0 OID 0)
+-- Dependencies: 243
+-- Name: order_laborers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.order_laborers_id_seq OWNED BY public.order_labourers.id;
+
+
+--
+-- TOC entry 249 (class 1259 OID 22063)
+-- Name: order_number_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.order_number_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.order_number_seq OWNER TO postgres;
+
+--
+-- TOC entry 238 (class 1259 OID 21656)
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    order_number character varying NOT NULL,
+    status public.order_status NOT NULL,
+    vehicle_id integer,
+    driver_id integer,
+    staff_id integer,
+    admin_id integer,
+    total_loaded_weight numeric(8,2) NOT NULL,
+    verify_weight numeric(8,2) DEFAULT 0,
+    start_odometer integer DEFAULT 0,
+    end_odometer integer DEFAULT 0,
+    advance_bhada numeric(8,2) DEFAULT 0,
+    other_kharch numeric(8,2) DEFAULT 0,
+    loading_bilty_url character varying NOT NULL,
+    vehicle_rate_per_ton numeric(8,2) DEFAULT 0,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text),
+    trip_allowance numeric(6,2),
+    transporter_id integer,
+    transporter_name character varying
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- TOC entry 237 (class 1259 OID 21655)
+-- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.orders_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.orders_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3611 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
+
+
+--
+-- TOC entry 232 (class 1259 OID 21562)
+-- Name: partner_master; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.partner_master (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    mobile_no character varying NOT NULL,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.partner_master OWNER TO postgres;
+
+--
+-- TOC entry 231 (class 1259 OID 21561)
+-- Name: partner_master_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.partner_master_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.partner_master_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3612 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: partner_master_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.partner_master_id_seq OWNED BY public.partner_master.id;
+
+
+--
+-- TOC entry 248 (class 1259 OID 21882)
+-- Name: plot; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.plot (
+    id integer NOT NULL,
+    plot_number character varying NOT NULL,
+    plot_name_eng character varying,
+    plot_name_guj character varying,
+    address character varying NOT NULL,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.plot OWNER TO postgres;
+
+--
+-- TOC entry 247 (class 1259 OID 21881)
+-- Name: plot_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.plot_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.plot_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3613 (class 0 OID 0)
+-- Dependencies: 247
+-- Name: plot_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.plot_id_seq OWNED BY public.plot.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 21575)
+-- Name: system_master; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.system_master (
+    id integer NOT NULL,
+    company_name character varying NOT NULL
+);
+
+
+ALTER TABLE public.system_master OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 21574)
+-- Name: system_master_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.system_master_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.system_master_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3614 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: system_master_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.system_master_id_seq OWNED BY public.system_master.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 21489)
+-- Name: transporter; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.transporter (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    mobile_no character varying NOT NULL,
+    company_name character varying NOT NULL,
+    bank_name character varying,
+    account_no character varying,
+    ifsc_code character varying,
+    email character varying,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.transporter OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 21488)
+-- Name: transporter_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.transporter_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.transporter_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3615 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: transporter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.transporter_id_seq OWNED BY public.transporter.id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 21463)
+-- Name: vehicle; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.vehicle (
+    id integer NOT NULL,
+    vehicle_no character varying NOT NULL,
+    rc_number character varying NOT NULL,
+    insurance_number character varying,
+    puc_number character varying,
+    permit_number character varying,
+    fitness_number character varying,
+    transporter_id integer,
+    is_active boolean DEFAULT true,
+    created_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.vehicle OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 21478)
+-- Name: vehicle_documents; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.vehicle_documents (
+    id integer NOT NULL,
+    vehicle_id integer NOT NULL,
+    document_type character varying NOT NULL,
+    file_url character varying NOT NULL,
+    uploaded_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata'::text)
+);
+
+
+ALTER TABLE public.vehicle_documents OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 21477)
+-- Name: vehicle_documents_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.vehicle_documents_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.vehicle_documents_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3616 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: vehicle_documents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.vehicle_documents_id_seq OWNED BY public.vehicle_documents.id;
+
+
+--
+-- TOC entry 219 (class 1259 OID 21462)
+-- Name: vehicle_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.vehicle_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.vehicle_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3617 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: vehicle_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.vehicle_id_seq OWNED BY public.vehicle.id;
+
+
+--
+-- TOC entry 3315 (class 2604 OID 21450)
+-- Name: admin id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admin ALTER COLUMN id SET DEFAULT nextval('public.admin_id_seq'::regclass);
+
+
+--
+-- TOC entry 3330 (class 2604 OID 21539)
+-- Name: customer id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer ALTER COLUMN id SET DEFAULT nextval('public.customer_id_seq'::regclass);
+
+
+--
+-- TOC entry 3333 (class 2604 OID 21554)
+-- Name: customer_address id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_address ALTER COLUMN id SET DEFAULT nextval('public.customer_address_id_seq'::regclass);
+
+
+--
+-- TOC entry 3314 (class 2604 OID 21423)
+-- Name: driver id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.driver ALTER COLUMN id SET DEFAULT nextval('public.driver_id_seq'::regclass);
+
+
+--
+-- TOC entry 3340 (class 2604 OID 21587)
+-- Name: items id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
+
+
+--
+-- TOC entry 3352 (class 2604 OID 21682)
+-- Name: labourer id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.labourer ALTER COLUMN id SET DEFAULT nextval('public.laborer_id_seq'::regclass);
+
+
+--
+-- TOC entry 3328 (class 2604 OID 21518)
+-- Name: labourer_assignment id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.labourer_assignment ALTER COLUMN id SET DEFAULT nextval('public.labor_assignment_id_seq'::regclass);
+
+
+--
+-- TOC entry 3359 (class 2604 OID 21715)
+-- Name: order_deliveries id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_deliveries ALTER COLUMN id SET DEFAULT nextval('public.order_deliveries_id_seq'::regclass);
+
+
+--
+-- TOC entry 3355 (class 2604 OID 21695)
+-- Name: order_diesel_log id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_diesel_log ALTER COLUMN id SET DEFAULT nextval('public.order_diesel_log_id_seq'::regclass);
+
+
+--
+-- TOC entry 3357 (class 2604 OID 21705)
+-- Name: order_labourers id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_labourers ALTER COLUMN id SET DEFAULT nextval('public.order_laborers_id_seq'::regclass);
+
+
+--
+-- TOC entry 3344 (class 2604 OID 21659)
+-- Name: orders id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
+
+
+--
+-- TOC entry 3336 (class 2604 OID 21565)
+-- Name: partner_master id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.partner_master ALTER COLUMN id SET DEFAULT nextval('public.partner_master_id_seq'::regclass);
+
+
+--
+-- TOC entry 3360 (class 2604 OID 21885)
+-- Name: plot id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.plot ALTER COLUMN id SET DEFAULT nextval('public.plot_id_seq'::regclass);
+
+
+--
+-- TOC entry 3339 (class 2604 OID 21578)
+-- Name: system_master id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.system_master ALTER COLUMN id SET DEFAULT nextval('public.system_master_id_seq'::regclass);
+
+
+--
+-- TOC entry 3325 (class 2604 OID 21492)
+-- Name: transporter id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transporter ALTER COLUMN id SET DEFAULT nextval('public.transporter_id_seq'::regclass);
+
+
+--
+-- TOC entry 3320 (class 2604 OID 21466)
+-- Name: vehicle id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle ALTER COLUMN id SET DEFAULT nextval('public.vehicle_id_seq'::regclass);
+
+
+--
+-- TOC entry 3323 (class 2604 OID 21481)
+-- Name: vehicle_documents id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle_documents ALTER COLUMN id SET DEFAULT nextval('public.vehicle_documents_id_seq'::regclass);
+
+
+--
+-- TOC entry 3564 (class 0 OID 21447)
+-- Dependencies: 218
+-- Data for Name: admin; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.admin (id, name, mobile_no, password, role, email, is_super_admin, is_active, created_at) FROM stdin;
+1	Yash Goswami	9558993208	$2b$10$L75VV79Pg3GYpO0HawrkEeH9fQ7fvFDRc114uRX7CqX2wD7ad6ymC	ADMIN	yashgoswami16102004@gmail.com	t	t	2026-03-25 10:29:04.659112
+3	raju patel	1234567890	$2b$10$L75VV79Pg3GYpO0HawrkEeH9fQ7fvFDRc114uRX7CqX2wD7ad6ymC	DRIVER	abc@gmail.com	f	t	2026-03-26 12:48:09.034837
+4	vishal goswami	0123456789	$2b$10$L75VV79Pg3GYpO0HawrkEeH9fQ7fvFDRc114uRX7CqX2wD7ad6ymC	STAFF	\N	f	t	2026-03-26 12:55:28.582009
+\.
+
+
+--
+-- TOC entry 3574 (class 0 OID 21536)
+-- Dependencies: 228
+-- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer (id, name_eng, name_guj, mobile_no, email, company_name, is_active, created_at) FROM stdin;
+1	Dev Patel	દેવ પટેલ	9876543210	dev123@gmail.com	Dev Group	t	2026-03-26 17:51:45.898095
+\.
+
+
+--
+-- TOC entry 3576 (class 0 OID 21551)
+-- Dependencies: 230
+-- Data for Name: customer_address; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_address (id, customer_id, address, is_active, created_at) FROM stdin;
+1	1	Ahemdabad	t	2026-03-26 17:54:39.547178
+2	1	Gandhinagar	f	2026-03-26 17:55:07.435072
+\.
+
+
+--
+-- TOC entry 3562 (class 0 OID 21420)
+-- Dependencies: 216
+-- Data for Name: driver; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.driver (id, driver_id, license_no, aadhar_no, address) FROM stdin;
+1	3	LIC567892	1234556789012	\N
+\.
+
+
+--
+-- TOC entry 3582 (class 0 OID 21584)
+-- Dependencies: 236
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.items (id, name_eng, name_guj, weight, price, is_active) FROM stdin;
+1	Bhachhau	ભાછાઉ	1000.00	4000.00	t
+2	Javau	જવાઉ	1000.00	4200.00	t
+3	Vari	વારી	1000.00	4400.00	t
+4	Chholela Teka	છોલેલા ટેકા	1000.00	4800.00	t
+5	Teka	ટેકા	1000.00	5000.00	t
+\.
+
+
+--
+-- TOC entry 3586 (class 0 OID 21679)
+-- Dependencies: 240
+-- Data for Name: labourer; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.labourer (id, name_eng, name_guj, mobile_no, aadhar_no, address, is_active, created_at) FROM stdin;
+1	Vijay	વિજય	7777788888	12345678978	Dehgam	t	2026-03-27 15:17:58.049671
+2	Kiran	કિરણ	7766688888	12345678977	gandhinagar	t	2026-03-27 15:18:49.589413
+3	Sanjay	સંજય	7766655888	12345678877	gandhinagar	t	2026-03-27 15:19:21.101945
+4	Mahesh	મહેશ	7763355888	12325678877	ramol	f	2026-03-27 15:20:04.59983
+5	Ramesh	રમેશ	7763315888	12323678877	devraj pura	t	2026-03-27 15:20:43.542682
+\.
+
+
+--
+-- TOC entry 3572 (class 0 OID 21515)
+-- Dependencies: 226
+-- Data for Name: labourer_assignment; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.labourer_assignment (id, labourer_id, plot_id, is_active, assigned_at) FROM stdin;
+1	1	5	t	2026-03-27 15:35:51.168743
+2	1	4	t	2026-03-27 15:36:06.046782
+3	2	1	t	2026-03-27 15:36:18.987906
+4	3	7	t	2026-03-27 15:36:31.922127
+5	3	8	t	2026-03-27 15:36:41.221443
+6	4	9	t	2026-03-27 15:36:54.610525
+7	4	10	t	2026-03-27 15:37:01.848507
+\.
+
+
+--
+-- TOC entry 3592 (class 0 OID 21712)
+-- Dependencies: 246
+-- Data for Name: order_deliveries; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_deliveries (id, order_id, customer_id, delivery_address_id, dispatch_bilty_no, dispatch_weight, delivery_sequence, bill_no, invoice_no, item_type) FROM stdin;
+1	ORD26030002	1	1	\N	8000.00	1	\N	\N	Bhachhau
+2	ORD26030002	202	302	\N	7000.00	2	\N	\N	Bhachhau
+3	ORD26030006	1	1	\N	8000.00	1	\N	\N	Bhachhau
+4	ORD26040008	1	\N	\N	15.00	1	\N	\N	3
+5	ORD26040010	1	1	\N	45.00	1	\N	\N	1
+6	ORD26040012	1	1	\N	45.00	1	\N	\N	1
+7	ORD26040014	1	1	\N	447.00	1	\N	\N	4
+8	ORD26040016	1	1	\N	\N	1	\N	\N	\N
+9	ORD26040018	1	1	\N	\N	1	\N	\N	\N
+10	ORD26040020	1	1	\N	\N	1	\N	\N	\N
+11	ORD26040022	1	1	\N	\N	1	\N	\N	\N
+12	ORD26040024	1	1	\N	\N	1	\N	\N	\N
+13	ORD26040026	1	1	\N	\N	1	\N	\N	\N
+14	ORD26040028	1	1	\N	\N	1	\N	\N	\N
+15	ORD26040030	1	1	\N	\N	1	\N	\N	\N
+16	ORD26040032	1	1	\N	\N	1	\N	\N	\N
+17	ORD26040034	1	1	\N	\N	1	\N	\N	\N
+18	ORD26040036	1	1	\N	\N	1	\N	\N	\N
+19	ORD26040038	1	1	\N	\N	1	\N	\N	\N
+20	ORD26040040	1	1	\N	\N	1	\N	\N	\N
+21	ORD26040042	1	1	\N	\N	1	\N	\N	\N
+22	ORD26040044	1	1	\N	\N	1	\N	\N	\N
+23	ORD26040046	1	1	\N	\N	1	\N	\N	\N
+24	ORD26040048	1	1	\N	\N	1	\N	\N	\N
+25	ORD26040050	1	1	\N	\N	1	\N	\N	\N
+26	ORD26040052	1	1	\N	\N	1	\N	\N	\N
+27	ORD26040054	1	1	\N	\N	1	\N	\N	\N
+28	ORD26040056	1	1	\N	\N	1	\N	\N	\N
+29	ORD26040058	1	1	\N	\N	1	\N	\N	\N
+30	ORD26040060	1	1	\N	\N	1	\N	\N	\N
+31	ORD26040062	1	1	\N	\N	1	\N	\N	\N
+32	ORD26040064	1	1	\N	\N	1	\N	\N	\N
+33	ORD26040066	1	1	\N	\N	1	\N	\N	\N
+34	ORD26040068	1	1	\N	\N	1	\N	\N	\N
+35	ORD26040070	1	1	\N	\N	1	\N	\N	\N
+36	ORD26040072	1	1	\N	\N	1	\N	\N	\N
+37	ORD26040074	1	1	\N	\N	1	\N	\N	\N
+\.
+
+
+--
+-- TOC entry 3588 (class 0 OID 21692)
+-- Dependencies: 242
+-- Data for Name: order_diesel_log; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_diesel_log (id, order_id, ord_seq_no, price, liters, total_price, time_at, location, diesel_img_url, created_at) FROM stdin;
+1	ORD26030002	1	95.50	20.00	1910.00	2026-03-28 10:30:00	Ahmedabad	https://example.com/diesel1.jpg	2026-03-28 14:53:28.910062
+2	ORD26040076	2	100.00	21.00	2100.00	2026-03-28 10:30:00	Ahmedabad	https://example.com/diesel2.jpg	2026-03-28 14:54:36.367244
+\.
+
+
+--
+-- TOC entry 3590 (class 0 OID 21702)
+-- Dependencies: 244
+-- Data for Name: order_labourers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_labourers (id, order_id, assin_plot_id, item_type, weight, plot_id, labourer_id, ord_seq_no, created_at) FROM stdin;
+1	ORD26030002	1	Bhachhau	5000.00	5	1	1	2026-03-28 14:35:42.342553
+2	ORD26030002	3	Bhachhau	7000.00	1	2	2	2026-03-28 14:35:42.342553
+3	ORD26030006	1	Bhachhau	5000.00	1	11	1	2026-03-28 15:56:22.356015
+4	ORD26040008	\N	1	15.00	1	1	1	2026-04-04 12:14:49.859431
+5	ORD26040010	1	1	4499.00	5	1	1	2026-04-04 12:27:27.822694
+6	ORD26040012	1	1	4499.00	5	1	1	2026-04-04 12:28:06.03962
+7	ORD26040014	1	1	4197.00	5	1	1	2026-04-04 12:32:24.330431
+8	ORD26040016	1	1	\N	5	1	1	2026-04-04 12:58:36.806563
+9	ORD26040018	1	1	\N	5	1	1	2026-04-04 14:26:46.741955
+10	ORD26040020	5	1	\N	8	3	1	2026-04-04 14:29:42.276952
+11	ORD26040022	4	4	\N	7	3	1	2026-04-04 14:32:02.912946
+12	ORD26040024	1	2	\N	5	1	1	2026-04-04 14:35:11.482755
+13	ORD26040026	1	1	\N	5	1	1	2026-04-04 14:36:05.528119
+14	ORD26040028	2	2	\N	4	1	1	2026-04-04 14:49:47.288036
+15	ORD26040030	1	1	\N	5	1	1	2026-04-04 14:55:05.750415
+16	ORD26040032	3	3	\N	1	2	1	2026-04-04 14:59:38.990626
+17	ORD26040034	1	1	\N	5	1	1	2026-04-04 14:59:49.754341
+18	ORD26040036	3	2	\N	1	2	1	2026-04-04 15:10:12.342787
+19	ORD26040038	2	1	\N	4	1	1	2026-04-04 15:24:57.405666
+20	ORD26040040	2	2	\N	4	1	1	2026-04-04 15:27:08.35758
+21	ORD26040042	1	1	\N	5	1	1	2026-04-04 15:28:39.476105
+22	ORD26040044	1	1	\N	5	1	1	2026-04-04 15:35:57.562198
+23	ORD26040046	1	1	\N	5	1	1	2026-04-04 15:39:37.385002
+24	ORD26040048	1	1	\N	5	1	1	2026-04-04 15:42:39.445517
+25	ORD26040050	2	1	\N	4	1	1	2026-04-04 15:49:56.106938
+26	ORD26040052	1	1	\N	5	1	1	2026-04-04 16:15:01.683887
+27	ORD26040054	1	2	\N	5	1	1	2026-04-04 16:15:37.034532
+28	ORD26040056	4	3	\N	7	3	1	2026-04-04 16:17:41.119006
+29	ORD26040058	4	3	\N	7	3	1	2026-04-04 16:18:29.056668
+30	ORD26040060	4	3	\N	7	3	1	2026-04-04 16:18:39.782822
+31	ORD26040062	1	1	\N	5	1	1	2026-04-04 16:19:56.727612
+32	ORD26040064	1	1	\N	5	1	1	2026-04-04 16:26:03.772863
+33	ORD26040066	1	2	\N	5	1	1	2026-04-04 16:33:32.526993
+34	ORD26040068	1	2	\N	5	1	1	2026-04-04 16:38:03.685066
+35	ORD26040070	1	1	\N	5	1	1	2026-04-04 16:39:15.183705
+36	ORD26040072	1	1	\N	5	1	1	2026-04-04 16:56:53.036786
+37	ORD26040074	1	1	\N	5	1	1	2026-04-10 15:47:50.542916
+38	ORD26040074	1	2	\N	5	1	2	2026-04-10 15:47:50.542916
+\.
+
+
+--
+-- TOC entry 3584 (class 0 OID 21656)
+-- Dependencies: 238
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (id, order_number, status, vehicle_id, driver_id, staff_id, admin_id, total_loaded_weight, verify_weight, start_odometer, end_odometer, advance_bhada, other_kharch, loading_bilty_url, vehicle_rate_per_ton, created_at, trip_allowance, transporter_id, transporter_name) FROM stdin;
+1	ORD26030002	PENDING_STAFF	1	3	\N	\N	15000.50	0.00	12000	0	5000.00	1200.00	https://example.com/bilty.jpg	250.00	2026-03-28 14:35:42.342553	800.00	1	Ramesh Patel
+2	ORD26030004	PENDING_STAFF	1	3	\N	\N	15000.50	0.00	12000	12550	5000.00	1200.00	https://example.com/bilty.jpg	250.00	2026-03-28 15:36:01.920303	800.00	1	Ramesh Patel
+3	ORD26030006	PENDING_STAFF	1	3	\N	\N	15000.50	0.00	12550	13000	1200.00	500.00	https://example.com/bilty.jpg	0.00	2026-03-28 15:56:22.356015	0.00	1	Ramesh Patel
+4	ORD26040008	PENDING_STAFF	1	3	\N	\N	0.00	0.00	0	0	0.00	0.00		0.00	2026-04-04 12:14:49.859431	0.00	1	Ramesh Patel
+5	ORD26040010	PENDING_STAFF	1	3	\N	\N	1200.00	0.00	4	3	2000.00	3000.00		1200.00	2026-04-04 12:27:27.822694	4498.00	1	Ramesh Patel
+6	ORD26040012	PENDING_STAFF	1	3	\N	\N	1200.00	0.00	4	3	2000.00	3000.00		1200.00	2026-04-04 12:28:06.03962	4498.00	1	Ramesh Patel
+7	ORD26040014	PENDING_STAFF	1	3	\N	\N	1200.00	0.00	120	5454	1200.00	4500.00		120.00	2026-04-04 12:32:24.330431	4498.00	1	Ramesh Patel
+8	ORD26040016	PENDING_STAFF	1	3	\N	\N	7275.00	0.00	4555	5557	75757.00	575.00		575.00	2026-04-04 12:58:36.806563	73.00	1	Ramesh Patel
+9	ORD26040018	PENDING_STAFF	1	3	\N	\N	500.00	0.00	45	62	78.00	57.00	Screenshot from 2026-03-07 14-58-50.png	580.00	2026-04-04 14:26:46.741955	578.00	1	Ramesh Patel
+10	ORD26040020	PENDING_STAFF	4	3	\N	\N	4523.00	0.00	45	42	4555.00	55445.00	Screenshot from 2026-03-12 14-44-26.png	455.00	2026-04-04 14:29:42.276952	455.00	2	Suresh Chaudhary
+11	ORD26040022	PENDING_STAFF	6	3	\N	\N	54.00	0.00	656	544	5646.00	6564.00	Screenshot from 2026-03-07 15-11-58.png	5645.00	2026-04-04 14:32:02.912946	4564.00	3	Mahesh Solanki
+12	ORD26040024	PENDING_STAFF	9	3	\N	\N	4554.00	0.00	4554	4543	5.00	55.00	Screenshot from 2026-03-12 14-44-26.png	554.00	2026-04-04 14:35:11.482755	41.00	5	Amit Shah
+13	ORD26040026	PENDING_STAFF	6	3	\N	\N	455.00	0.00	545	545	45.00	55.00	Screenshot from 2026-03-12 14-44-26.png	5.00	2026-04-04 14:36:05.528119	542.00	3	Mahesh Solanki
+14	ORD26040028	PENDING_STAFF	8	3	\N	\N	778.00	0.00	57	87	785.00	78.00	Screenshot from 2026-03-12 14-44-26.png	78.00	2026-04-04 14:49:47.288036	86.00	4	Rajesh Yadav
+15	ORD26040030	PENDING_STAFF	1	3	\N	\N	5000.00	0.00	5000	50025	500.00	200.00	Screenshot from 2026-04-04 11-48-10.png	200.00	2026-04-04 14:55:05.750415	200.00	1	Ramesh Patel
+16	ORD26040032	PENDING_STAFF	1	3	\N	\N	200.00	0.00	200	200	500.00	500.00	Screenshot from 2026-04-04 11-48-10.png	200.00	2026-04-04 14:59:38.990626	100.00	1	Ramesh Patel
+17	ORD26040034	PENDING_STAFF	3	3	\N	\N	455.00	0.00	455	454	455.00	44.00	Screenshot from 2026-03-12 14-44-26.png	4545.00	2026-04-04 14:59:49.754341	1212.00	2	Suresh Chaudhary
+18	ORD26040036	PENDING_STAFF	1	3	\N	\N	200.00	0.00	200	500	200.00	100.00	Screenshot from 2026-04-02 16-02-26.png	50.00	2026-04-04 15:10:12.342787	20.00	1	Ramesh Patel
+19	ORD26040038	PENDING_STAFF	7	3	\N	\N	400.00	0.00	400	400	400.00	400.00	Screenshot from 2026-03-12 14-44-26.png	400.00	2026-04-04 15:24:57.405666	398.00	4	Rajesh Yadav
+20	ORD26040040	PENDING_STAFF	6	3	\N	\N	400.00	0.00	400	400	400.00	400.00	Screenshot from 2026-03-12 14-44-26.png	400.00	2026-04-04 15:27:08.35758	398.00	3	Mahesh Solanki
+21	ORD26040042	PENDING_STAFF	2	3	\N	\N	400.00	0.00	200	200	200.00	200.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 15:28:39.476105	0.00	1	Ramesh Patel
+22	ORD26040044	PENDING_STAFF	8	3	\N	\N	400.00	0.00	400	400	400.00	400.00	Screenshot from 2026-03-12 14-44-26.png	400.00	2026-04-04 15:35:57.562198	398.00	4	Rajesh Yadav
+23	ORD26040046	PENDING_STAFF	1	3	\N	\N	200.00	0.00	200	200	200.00	200.00	Screenshot from 2026-04-04 11-48-10.png	200.00	2026-04-04 15:39:37.385002	200.00	1	Ramesh Patel
+24	ORD26040048	PENDING_STAFF	1	3	\N	\N	200.00	0.00	200	200	0.00	0.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 15:42:39.445517	0.00	1	Ramesh Patel
+25	ORD26040050	PENDING_STAFF	2	3	\N	\N	200.00	0.00	200	200	0.00	0.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 15:49:56.106938	0.00	1	Ramesh Patel
+26	ORD26040052	PENDING_STAFF	5	3	\N	\N	42.00	0.00	244	242	0.00	0.00	Screenshot from 2026-03-12 14-44-26.png	0.00	2026-04-04 16:15:01.683887	0.00	3	Mahesh Solanki
+27	ORD26040054	PENDING_STAFF	7	3	\N	\N	42.00	0.00	24	24	24.00	24.00	Screenshot from 2026-03-23 15-39-23.png	0.00	2026-04-04 16:15:37.034532	0.00	4	Rajesh Yadav
+28	ORD26040056	PENDING_STAFF	8	3	\N	\N	252.00	0.00	242	422	0.00	0.00	Screenshot from 2026-03-23 15-39-23.png	0.00	2026-04-04 16:17:41.119006	0.00	4	Rajesh Yadav
+29	ORD26040058	PENDING_STAFF	8	3	\N	\N	252.00	0.00	242	422	0.00	0.00	Screenshot from 2026-03-23 15-39-23.png	0.00	2026-04-04 16:18:29.056668	0.00	4	Rajesh Yadav
+30	ORD26040060	PENDING_STAFF	8	3	\N	\N	252.00	0.00	242	422	0.00	0.00	Screenshot from 2026-03-23 15-39-23.png	0.00	2026-04-04 16:18:39.782822	0.00	4	Rajesh Yadav
+31	ORD26040062	PENDING_STAFF	6	3	\N	\N	475.00	0.00	454	545	45.00	45.00	Screenshot from 2026-03-23 15-39-23.png	45.00	2026-04-04 16:19:56.727612	43.00	3	Mahesh Solanki
+32	ORD26040064	PENDING_STAFF	6	3	\N	\N	475.00	0.00	454	545	45.00	45.00	Screenshot from 2026-03-23 15-39-23.png	45.00	2026-04-04 16:26:03.772863	43.00	3	Mahesh Solanki
+33	ORD26040066	PENDING_STAFF	1	3	\N	\N	200.00	0.00	500	500	0.00	0.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 16:33:32.526993	0.00	1	Ramesh Patel
+34	ORD26040068	PENDING_STAFF	1	3	\N	\N	200.00	0.00	500	500	0.00	0.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 16:38:03.685066	0.00	1	Ramesh Patel
+35	ORD26040070	PENDING_STAFF	1	3	\N	\N	500.00	0.00	0	0	0.00	0.00	Screenshot from 2026-04-04 11-48-10.png	0.00	2026-04-04 16:39:15.183705	0.00	1	Ramesh Patel
+36	ORD26040072	PENDING_STAFF	1	3	\N	\N	200.00	0.00	1200	1500	400.00	300.00	Screenshot from 2026-04-04 11-48-10.png	700.00	2026-04-04 16:56:53.036786	500.00	1	Ramesh Patel
+37	ORD26040074	PENDING_STAFF	1	3	\N	\N	400.00	0.00	2000	2100	400.00	500.00	Screenshot from 2026-04-06 13-07-59.png	300.00	2026-04-10 15:47:50.542916	250.00	1	Ramesh Patel
+38	ORD26040076	PENDING_STAFF	\N	3	\N	\N	0.00	0.00	0	0	0.00	0.00	Screenshot from 2026-04-06 10-28-59.png	0.00	2026-04-10 16:17:53.700265	0.00	\N	\N
+\.
+
+
+--
+-- TOC entry 3578 (class 0 OID 21562)
+-- Dependencies: 232
+-- Data for Name: partner_master; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.partner_master (id, name, mobile_no, is_active, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3594 (class 0 OID 21882)
+-- Dependencies: 248
+-- Data for Name: plot; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.plot (id, plot_number, plot_name_eng, plot_name_guj, address, is_active, created_at) FROM stdin;
+1	01	Bhachau Forest Plot	ભાછાઉ જંગલ પ્લોટ	Kutch Area	t	2026-03-27 15:33:07.258858
+2	02	Javau Cutting Plot	જવાઉ કટિંગ પ્લોટ	Banaskantha	t	2026-03-27 15:33:10.928982
+3	03	Vari Wood Plot	વારી લાકડું પ્લોટ	Sabarkantha	t	2026-03-27 15:33:14.674625
+4	14	Chholela Timber Plot	છોલેલા લાકડું પ્લોટ	Patan	f	2026-03-27 15:33:28.365394
+5	51	Teka Support Plot	ટેકા સપોર્ટ પ્લોટ	Mehsana	t	2026-03-27 15:33:31.80156
+6	69	Gir Forest Wood Plot	ગીર જંગલ લાકડું પ્લોટ	Junagadh	t	2026-03-27 15:33:35.423626
+7	67	Babul Wood Plot	બબૂલ લાકડું પ્લોટ	Amreli	t	2026-03-27 15:33:38.926121
+8	78	Neem Tree Plot	નીમ ઝાડ પ્લોટ	Rajkot	t	2026-03-27 15:33:42.389455
+9	49	Mixed Wood Plot	મિશ્ર લાકડું પ્લોટ	Surendranagar	t	2026-03-27 15:33:46.392738
+10	11	Auction Wood Plot	હરાજી લાકડું પ્લોટ	Bhavnagar	t	2026-03-27 15:33:50.240952
+\.
+
+
+--
+-- TOC entry 3580 (class 0 OID 21575)
+-- Dependencies: 234
+-- Data for Name: system_master; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.system_master (id, company_name) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3570 (class 0 OID 21489)
+-- Dependencies: 224
+-- Data for Name: transporter; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.transporter (id, name, mobile_no, company_name, bank_name, account_no, ifsc_code, email, is_active, created_at) FROM stdin;
+1	Ramesh Patel	9876543210	Patel Transport	SBI Bank	12345678901	SBIN0001234	ramesh@gmail.com	t	2026-03-27 15:43:43.886378
+2	Suresh Chaudhary	9876501234	Chaudhary Logistics	HDFC Bank	22345678901	HDFC0005678	suresh@gmail.com	t	2026-03-27 15:44:03.414827
+3	Mahesh Solanki	9876512340	Solanki Movers	ICICI Bank	32345678901	ICIC0009101	mahesh@gmail.com	t	2026-03-27 15:44:03.414827
+4	Rajesh Yadav	9876523456	Yadav Transport Co.	Axis Bank	42345678901	UTIB0001122	rajesh@gmail.com	t	2026-03-27 15:44:03.414827
+5	Amit Shah	9876534567	Shah Cargo	Bank of Baroda	52345678901	BARB0003344	amit@gmail.com	t	2026-03-27 15:44:03.414827
+\.
+
+
+--
+-- TOC entry 3566 (class 0 OID 21463)
+-- Dependencies: 220
+-- Data for Name: vehicle; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.vehicle (id, vehicle_no, rc_number, insurance_number, puc_number, permit_number, fitness_number, transporter_id, is_active, created_at) FROM stdin;
+1	GJ01AB1234	RC1001	INS1001	PUC1001	PER1001	FIT1001	1	t	2026-03-27 15:44:49.790384
+2	GJ01AB2345	RC1002	INS1002	PUC1002	PER1002	FIT1002	1	t	2026-03-27 15:44:49.790384
+3	GJ01AB3456	RC1003	INS1003	PUC1003	PER1003	FIT1003	2	t	2026-03-27 15:44:49.790384
+4	GJ01AB4567	RC1004	INS1004	PUC1004	PER1004	FIT1004	2	t	2026-03-27 15:44:49.790384
+5	GJ01AB5678	RC1005	INS1005	PUC1005	PER1005	FIT1005	3	t	2026-03-27 15:44:49.790384
+6	GJ01AB6789	RC1006	INS1006	PUC1006	PER1006	FIT1006	3	t	2026-03-27 15:44:49.790384
+7	GJ01AB7890	RC1007	INS1007	PUC1007	PER1007	FIT1007	4	t	2026-03-27 15:44:49.790384
+8	GJ01AB8901	RC1008	INS1008	PUC1008	PER1008	FIT1008	4	t	2026-03-27 15:44:49.790384
+9	GJ01AB9012	RC1009	INS1009	PUC1009	PER1009	FIT1009	5	t	2026-03-27 15:44:49.790384
+10	GJ01AB0123	RC1010	INS1010	PUC1010	PER1010	FIT1010	5	t	2026-03-27 15:44:49.790384
+\.
+
+
+--
+-- TOC entry 3568 (class 0 OID 21478)
+-- Dependencies: 222
+-- Data for Name: vehicle_documents; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.vehicle_documents (id, vehicle_id, document_type, file_url, uploaded_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3618 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: admin_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.admin_id_seq', 4, true);
+
+
+--
+-- TOC entry 3619 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: customer_address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_address_id_seq', 2, true);
+
+
+--
+-- TOC entry 3620 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_id_seq', 1, true);
+
+
+--
+-- TOC entry 3621 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: driver_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.driver_id_seq', 1, true);
+
+
+--
+-- TOC entry 3622 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.items_id_seq', 5, true);
+
+
+--
+-- TOC entry 3623 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: labor_assignment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.labor_assignment_id_seq', 7, true);
+
+
+--
+-- TOC entry 3624 (class 0 OID 0)
+-- Dependencies: 239
+-- Name: laborer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.laborer_id_seq', 5, true);
+
+
+--
+-- TOC entry 3625 (class 0 OID 0)
+-- Dependencies: 245
+-- Name: order_deliveries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.order_deliveries_id_seq', 40, true);
+
+
+--
+-- TOC entry 3626 (class 0 OID 0)
+-- Dependencies: 241
+-- Name: order_diesel_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.order_diesel_log_id_seq', 2, true);
+
+
+--
+-- TOC entry 3627 (class 0 OID 0)
+-- Dependencies: 243
+-- Name: order_laborers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.order_laborers_id_seq', 46, true);
+
+
+--
+-- TOC entry 3628 (class 0 OID 0)
+-- Dependencies: 249
+-- Name: order_number_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.order_number_seq', 76, true);
+
+
+--
+-- TOC entry 3629 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.orders_id_seq', 38, true);
+
+
+--
+-- TOC entry 3630 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: partner_master_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.partner_master_id_seq', 1, false);
+
+
+--
+-- TOC entry 3631 (class 0 OID 0)
+-- Dependencies: 247
+-- Name: plot_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.plot_id_seq', 10, true);
+
+
+--
+-- TOC entry 3632 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: system_master_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.system_master_id_seq', 1, false);
+
+
+--
+-- TOC entry 3633 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: transporter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.transporter_id_seq', 5, true);
+
+
+--
+-- TOC entry 3634 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: vehicle_documents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.vehicle_documents_id_seq', 1, false);
+
+
+--
+-- TOC entry 3635 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: vehicle_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.vehicle_id_seq', 10, true);
+
+
+--
+-- TOC entry 3369 (class 2606 OID 21461)
+-- Name: admin admin_mobile_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admin
+    ADD CONSTRAINT admin_mobile_no_key UNIQUE (mobile_no);
+
+
+--
+-- TOC entry 3371 (class 2606 OID 21459)
+-- Name: admin admin_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admin
+    ADD CONSTRAINT admin_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3389 (class 2606 OID 21560)
+-- Name: customer_address customer_address_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_address
+    ADD CONSTRAINT customer_address_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3387 (class 2606 OID 21545)
+-- Name: customer customer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer
+    ADD CONSTRAINT customer_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3365 (class 2606 OID 21429)
+-- Name: driver driver_driver_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.driver
+    ADD CONSTRAINT driver_driver_id_key UNIQUE (driver_id);
+
+
+--
+-- TOC entry 3367 (class 2606 OID 21427)
+-- Name: driver driver_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.driver
+    ADD CONSTRAINT driver_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3397 (class 2606 OID 21591)
+-- Name: items items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3385 (class 2606 OID 21521)
+-- Name: labourer_assignment labor_assignment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.labourer_assignment
+    ADD CONSTRAINT labor_assignment_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3403 (class 2606 OID 21690)
+-- Name: labourer laborer_mobile_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.labourer
+    ADD CONSTRAINT laborer_mobile_no_key UNIQUE (mobile_no);
+
+
+--
+-- TOC entry 3405 (class 2606 OID 21688)
+-- Name: labourer laborer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.labourer
+    ADD CONSTRAINT laborer_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3411 (class 2606 OID 21719)
+-- Name: order_deliveries order_deliveries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_deliveries
+    ADD CONSTRAINT order_deliveries_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3407 (class 2606 OID 21700)
+-- Name: order_diesel_log order_diesel_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_diesel_log
+    ADD CONSTRAINT order_diesel_log_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3409 (class 2606 OID 21710)
+-- Name: order_labourers order_laborers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_labourers
+    ADD CONSTRAINT order_laborers_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3399 (class 2606 OID 21669)
+-- Name: orders orders_order_number_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_order_number_key UNIQUE (order_number);
+
+
+--
+-- TOC entry 3401 (class 2606 OID 21667)
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3391 (class 2606 OID 21573)
+-- Name: partner_master partner_master_mobile_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.partner_master
+    ADD CONSTRAINT partner_master_mobile_no_key UNIQUE (mobile_no);
+
+
+--
+-- TOC entry 3393 (class 2606 OID 21571)
+-- Name: partner_master partner_master_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.partner_master
+    ADD CONSTRAINT partner_master_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3413 (class 2606 OID 21891)
+-- Name: plot plot_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.plot
+    ADD CONSTRAINT plot_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3415 (class 2606 OID 21893)
+-- Name: plot plot_plot_number_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.plot
+    ADD CONSTRAINT plot_plot_number_key UNIQUE (plot_number);
+
+
+--
+-- TOC entry 3395 (class 2606 OID 21582)
+-- Name: system_master system_master_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.system_master
+    ADD CONSTRAINT system_master_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3381 (class 2606 OID 21500)
+-- Name: transporter transporter_mobile_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transporter
+    ADD CONSTRAINT transporter_mobile_no_key UNIQUE (mobile_no);
+
+
+--
+-- TOC entry 3383 (class 2606 OID 21498)
+-- Name: transporter transporter_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transporter
+    ADD CONSTRAINT transporter_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3379 (class 2606 OID 21486)
+-- Name: vehicle_documents vehicle_documents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle_documents
+    ADD CONSTRAINT vehicle_documents_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3373 (class 2606 OID 21472)
+-- Name: vehicle vehicle_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle
+    ADD CONSTRAINT vehicle_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3375 (class 2606 OID 21476)
+-- Name: vehicle vehicle_rc_number_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle
+    ADD CONSTRAINT vehicle_rc_number_key UNIQUE (rc_number);
+
+
+--
+-- TOC entry 3377 (class 2606 OID 21474)
+-- Name: vehicle vehicle_vehicle_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vehicle
+    ADD CONSTRAINT vehicle_vehicle_no_key UNIQUE (vehicle_no);
+
+
+--
+-- TOC entry 3416 (class 2620 OID 21721)
+-- Name: orders trg_generate_order_id; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_generate_order_id BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION public.generate_order_number();
+
+
+--
+-- TOC entry 3417 (class 2620 OID 22062)
+-- Name: orders trg_generate_order_number; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_generate_order_number BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION public.generate_order_number();
+
+
+-- Completed on 2026-04-18 12:17:48 UTC
+
+--
+-- PostgreSQL database dump complete
+--
+
