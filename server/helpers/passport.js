@@ -39,7 +39,7 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser(async (userid, done) => {
    
     try {const id = userid.id;// Handle both user and session objects
-        const user = await pgClient.getRowsQuery('SELECT * FROM public.admin WHERE id = $1', [id]);
+        const user = await pgClient.getRowsQuery('SELECT * FROM public.users WHERE id = $1', [id]);
         done(null, user[0]);
     } catch (err) {
         done(err);

@@ -13,6 +13,12 @@ router.get(
 );
 
 router.get(
+    "/get/drivers",
+    //passport.isLoggedIn,
+    orderCtrl.get_driver_details
+);
+
+router.get(
     "/get/labourers",
     //passport.isLoggedIn,
     orderCtrl.get_labourers_details
@@ -25,9 +31,46 @@ router.get(
 );
 
 router.get(
+    "/get/supplier",
+    orderCtrl.get_supplier_details
+);
+
+router.post(
+    "/get/supplier/address",
+    orderCtrl.get_supplier_address_details
+);
+router.post(
+    "/get/supplier/item/price",
+    orderCtrl.get_supplier_item_price_details
+);
+router.post(
+    "/get/supplier/payment",
+    orderCtrl.get_supplier_payments_details
+);
+
+router.get(
     "/get/customers",
     //passport.isLoggedIn,
     orderCtrl.get_customers_details
+);
+
+router.post(
+    "/get/customers/address",
+    orderCtrl.get_customers_address_details
+);
+router.post(
+    "/get/customers/item/price",
+    orderCtrl.get_customers_item_price_details
+);
+router.post(
+    "/get/customers/payment",
+    orderCtrl.get_customers_payments_details
+);
+
+router.get(
+    "/get/partners",
+    //passport.isLoggedIn,
+    orderCtrl.get_partners_details
 );
 
 router.post(
