@@ -14,7 +14,7 @@ router.post(
 
 router.post(
     "/get/driver/list",
-    //passport.isLoggedIn,
+    passport.isLoggedIn,
     userManageCtrl.get_driver_details_list
 );
 

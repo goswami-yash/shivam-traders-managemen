@@ -33,8 +33,9 @@ async function get_users_details_list(req, res, next) {
 async function get_driver_details_list(req, res, next) {
 
     try {
+       
         const {page_number,page_size,search_name} = req.body;
-        const result = await pgClient.query("SELECT * FROM admin_usermanagement_get_driver_list($1,$2,$3)", [page_number,page_size,search_name]);
+        const result = await pgClient.query("SELECT * FROM admin_service_get_driver_list($1,$2,$3)", [page_number,page_size,search_name]);
 
         if (!result) {
             throw new APIError(

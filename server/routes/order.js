@@ -8,25 +8,25 @@ const router = express.Router();
 // Login route
 router.get(
     "/get/vehicles",
-    //passport.isLoggedIn,
+    passport.isLoggedIn,
     orderCtrl.get_vehicles_details
 );
 
 router.get(
     "/get/drivers",
-    //passport.isLoggedIn,
+    passport.isLoggedIn,
     orderCtrl.get_driver_details
 );
 
 router.get(
     "/get/labourers",
-    //passport.isLoggedIn,
+    passport.isLoggedIn,
     orderCtrl.get_labourers_details
 );
 
 router.get(
     "/get/items",
-    //passport.isLoggedIn,
+    passport.isLoggedIn,
     orderCtrl.get_items_details
 );
 
