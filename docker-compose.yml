@@ -1,29 +1,32 @@
-# version: "3.9"
-# services:
-#   main-backend:
-#     container_name: main-backend
-#     build:
-#       context: .
-#       dockerfile: Dockerfile-pro
-#     environment:
-#       NODE_ENV: production
-#     ports:
-#       - "3001:3001"
+version: "3.9"
+
+services:
+  main-backend:
+    container_name: main-backend
+    build:
+      context: .
+      dockerfile: Dockerfile-pro
+    environment:
+      NODE_ENV: production
+      PORT: 3021
+    ports:
+      - "3021:3021"
+    restart: unless-stopped
 
 # devlopment
 
-services:
-  shivam-traders-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile-dev
-    environment:
-      NODE_ENV: development
-    ports:
-      - "3021:3021"
-    volumes:
-      - .:/home/app/shivam-traders-backend
-      - /home/app/shivam-traders-backend/node_modules
-    entrypoint: npm start
+#services:
+#  shivam-traders-backend:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile-dev
+#    environment:
+#      NODE_ENV: development
+#    ports:
+#      - "3021:3021"
+#    volumes:
+#      - .:/home/app/shivam-traders-backend
+#      - /home/app/shivam-traders-backend/node_modules
+#    entrypoint: npm start
   
 

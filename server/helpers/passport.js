@@ -59,7 +59,7 @@ passport.isLoggedIn = function (req, res, next) {
         res.status(401).send(retVal);
       } catch (error) {
         console.log(error);
-        let err = new APIError("You are not authorized please login first.", status.UNAUTHORIZED, true, true);
+        let err = new APIError("You are not authorized please login first.", httpStatus.UNAUTHORIZED, true, true);
         next(err);
       }
     };

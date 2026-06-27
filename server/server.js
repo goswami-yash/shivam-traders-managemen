@@ -34,14 +34,25 @@ app.use(helmet({
     contentSecurityPolicy: isDev ? false : undefined, // Enable real CSP in production
 }));
 
+app.use((req, res, next) => {
+    console.log("=================================");
+    console.log("Method :", req.method);
+    console.log("URL    :", req.originalUrl);
+    console.log("Origin :", req.headers.origin);
+    console.log("Host   :", req.headers.host);
+    console.log("=================================");
+    next();
+});
+
 // 3. CORS Configuration
 app.use(cors({
     origin: [
-        "http://localhost:8082",
+        "http://localhost:8080",
+        "http://localhost:80",
         "http://localhost:5173",
-        "http://192.168.0.58:8082",
+        "http://65.2.178.33:8080",
         "http://192.168.0.43:3021",
-        "http://192.168.0.43:8082"
+        "http://65.2.178.33:80"
     ], 
     credentials: true
 }));

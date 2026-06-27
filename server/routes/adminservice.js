@@ -54,7 +54,7 @@ router.post(
 router.post(
     "/vehicle/update",
     passport.isLoggedIn,
-    adminservierCtrl.update_driver_details
+    adminservierCtrl.update_vehicle_details
 );
 
 router.post(
@@ -261,6 +261,11 @@ router.post(
     adminservierCtrl.create_transporter
 );
 
+router.get(
+    "/transporter/name/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_transporter_name_list
+);
 //============================ LABOURER ============================//
 
 router.post(
@@ -291,6 +296,233 @@ router.post(
     "/labourer/create",
     passport.isLoggedIn,
     adminservierCtrl.create_labourer
+);
+
+
+//============================ CUSTOMER ADDRESS ============================//
+
+router.post(
+    "/customer/address/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_address_details_list
+);
+
+router.post(
+    "/customer/address/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_customer_address_details
+);
+
+router.post(
+    "/customer/address/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_customer_address_by_id
+);
+
+router.post(
+    "/customer/address/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_customer_address
+);
+
+router.post(
+    "/customer/address/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_address_details_by_id
+);
+
+//============================ CUSTOMER PAYMENT ============================//
+
+router.post(
+    "/customer/payment/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_payment_details_list
+);
+
+router.post(
+    "/customer/payment/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_customer_payment_details
+);
+
+router.post(
+    "/customer/payment/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_customer_payment_by_id
+);
+
+router.post(
+    "/customer/payment/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_customer_payment
+);
+
+router.post(
+    "/customer/payment/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_payment_details_by_id
+);
+
+
+//============================ CUSTOMER ITEM PRICE ============================//
+
+router.post(
+    "/customer/item/price/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_item_price_details_list
+);
+
+router.post(
+    "/customer/item/price/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_customer_item_price_details
+);
+
+router.post(
+    "/customer/item/price/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_customer_item_price_by_id
+);
+
+router.post(
+    "/customer/item/price/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_customer_item_price
+);
+
+router.post(
+    "/customer/item/price/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_customer_item_price_details_by_id
+);
+
+//============================ LABOURER ASSIGN PLOT ============================//
+
+router.post(
+    "/labourer/assign/plot/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_labourer_assign_plot_details_list
+);
+
+router.post(
+    "/labourer/assign/plot/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_labourer_assign_plot_details
+);
+
+router.post(
+    "/labourer/assign/plot/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_labourer_assign_plot_by_id
+);
+
+router.post(
+    "/labourer/assign/plot/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_labourer_assign_plot
+);
+
+router.post(
+    "/labourer/assign/plot/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_labourer_assign_plot_details_by_id
+);
+
+//============================ SUPPLIER ADDRESS ============================//
+
+router.post(
+    "/supplier/address/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_address_details_list
+);
+
+router.post(
+    "/supplier/address/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_supplier_address_details
+);
+
+router.post(
+    "/supplier/address/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_supplier_address_by_id
+);
+
+router.post(
+    "/supplier/address/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_supplier_address
+);
+
+router.post(
+    "/supplier/address/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_address_details_by_id
+);
+
+
+//============================ CUSTOMER PAYMENT ============================//
+
+router.post(
+    "/supplier/payment/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_payment_details_list
+);
+
+router.post(
+    "/supplier/payment/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_supplier_payment_details
+);
+
+router.post(
+    "/supplier/payment/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_supplier_payment_by_id
+);
+
+router.post(
+    "/supplier/payment/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_supplier_payment
+);
+
+router.post(
+    "/supplier/payment/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_payment_details_by_id
+);
+
+//============================ SUPPLIER ITEM PRICE ============================//
+
+router.post(
+    "/supplier/item/price/list",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_item_price_details_list
+);
+
+router.post(
+    "/supplier/item/price/update",
+    passport.isLoggedIn,
+    adminservierCtrl.update_supplier_item_price_details
+);
+
+router.post(
+    "/supplier/item/price/delete",
+    passport.isLoggedIn,
+    adminservierCtrl.delete_supplier_item_price_by_id
+);
+
+router.post(
+    "/supplier/item/price/create",
+    passport.isLoggedIn,
+    adminservierCtrl.create_supplier_item_price
+);
+
+router.post(
+    "/supplier/item/price/details/by_id",
+    passport.isLoggedIn,
+    adminservierCtrl.get_supplier_item_price_details_by_id
 );
 
 export default router;
