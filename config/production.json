@@ -1,0 +1,19 @@
+{
+    "App": {
+      "config": {
+        "port": 3021
+      },
+      "db": {
+        "host": "65.2.178.33",
+        "port": "5432",
+        "user": "postgres",
+        "password": "yash1610",
+        "name": "shivam_traders"
+      },
+      "redis": {
+        "host": "redis",
+        "port": "6379"
+      }
+    }
+  }
+  

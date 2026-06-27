@@ -16,7 +16,7 @@ async function comparePassword(userPassword, dbPassword) {
 
 async function loginUser(req,res,next){
   const mobileNo = req.body.mobile_no ;
-  
+  console.log("mobile:",mobileNo)
   try {
     const result = await pgClient.query("SELECT * FROM login_get_user_by_mobile($1)",
       [mobileNo]

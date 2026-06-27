@@ -199,9 +199,9 @@ async function update_vehicle_details(req, res, next) {
 
     try {
 
-        const { id, vehicle_no, is_private, owner_name, is_active } = req.body;
+        const { id, vehicle_number, is_private, owner_name, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_update_vehicle_details($1,$2,$3,$4,$5)", [id, vehicle_no, is_private, owner_name, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_update_vehicle_details($1,$2,$3,$4,$5)", [id, vehicle_number, is_private, owner_name, is_active]);
 
         if (!result) {
             throw new APIError(
@@ -707,9 +707,9 @@ async function create_plot(req, res, next) {
 
     try {
         const user_id = req.user.id;
-        const { plot_number, plot_name,address, is_active } = req.body;
+        const { plot_number, plot_name, address, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_create_plot_details($1,$2,$3,$4,$5)", [user_id, plot_number, plot_name,address, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_create_plot_details($1,$2,$3,$4,$5)", [user_id, plot_number, plot_name, address, is_active]);
 
         if (!result) {
             throw new APIError("The plot are not Add", httpStatus.NO_CONTENT, true, true);
@@ -759,9 +759,9 @@ async function update_plot_details(req, res, next) {
 
     try {
 
-        const { id, plot_number, plot_name,address, is_active } = req.body;
+        const { id, plot_number, plot_name, address, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_update_plot_details($1,$2,$3,$4,$5) AS Update_plot", [id, plot_number, plot_name,address, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_update_plot_details($1,$2,$3,$4,$5) AS Update_plot", [id, plot_number, plot_name, address, is_active]);
 
         if (!result || result.rows[0].Update_plot === false) {
             throw new APIError(
@@ -973,9 +973,9 @@ async function create_transporter(req, res, next) {
 
     try {
         const user_id = req.user.id;
-        const { name, mobile_no, email, company_name, bank_name,account_no,ifsc_code,is_active } = req.body;
+        const { name, mobile_no, email, company_name, bank_name, account_no, ifsc_code, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_create_transporter_details($1,$2,$3,$4,$5,$6,$7,$8,$9)", [user_id, name, mobile_no, company_name, bank_name,account_no,ifsc_code, email, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_create_transporter_details($1,$2,$3,$4,$5,$6,$7,$8,$9)", [user_id, name, mobile_no, company_name, bank_name, account_no, ifsc_code, email, is_active]);
 
         if (!result) {
             throw new APIError("The transporter are not Add", httpStatus.NO_CONTENT, true, true);
@@ -997,9 +997,9 @@ async function update_transporter_details(req, res, next) {
 
     try {
 
-        const { id, name, mobile_no, email, company_name, bank_name,account_no,ifsc_code, is_active } = req.body;
+        const { id, name, mobile_no, email, company_name, bank_name, account_no, ifsc_code, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_update_transporter_details($1,$2,$3,$4,$5,$6,$7,$8,$9) AS Update_transporter", [id, name, mobile_no, company_name, bank_name,account_no,ifsc_code, email, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_update_transporter_details($1,$2,$3,$4,$5,$6,$7,$8,$9) AS Update_transporter", [id, name, mobile_no, company_name, bank_name, account_no, ifsc_code, email, is_active]);
 
         if (!result || result.rows[0].Update_transporter === false) {
             throw new APIError(
@@ -1053,7 +1053,7 @@ async function delete_transporter_by_id(req, res, next) {
 
     try {
         const { transporter_id } = req.body;
-     
+
         let result = await pgClient.query("SELECT * FROM admin_service_delete_transporter_by_id($1)", [transporter_id]);
 
         if (!result) {
@@ -1077,6 +1077,28 @@ async function delete_transporter_by_id(req, res, next) {
 
 }
 
+async function get_transporter_name_list(req, res, next) {
+
+    try {
+
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_transporter_name_list()", []);
+
+        if (!result) {
+            throw new APIError("The labourer Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
 //============================ LABOUR ============================//
 
 async function get_labourer_details_list(req, res, next) {
@@ -1106,7 +1128,7 @@ async function create_labourer(req, res, next) {
 
     try {
         const user_id = req.user.id;
-        const { name, mobile_no, aadhar_no, address,is_active } = req.body;
+        const { name, mobile_no, aadhar_no, address, is_active } = req.body;
 
         const result = await pgClient.query("SELECT * FROM admin_service_create_labourer_details($1,$2,$3,$4,$5,$6)", [user_id, name, mobile_no, aadhar_no, address, is_active]);
 
@@ -1130,9 +1152,9 @@ async function update_labourer_details(req, res, next) {
 
     try {
 
-        const { id, name, mobile_no, aadhar_no, address,is_active } = req.body;
+        const { id, name, mobile_no, aadhar_no, address, is_active } = req.body;
 
-        const result = await pgClient.query("SELECT * FROM admin_service_update_labourer_details($1,$2,$3,$4,$5,$6) AS Update_labourer", [id, name, mobile_no,  aadhar_no, address, is_active]);
+        const result = await pgClient.query("SELECT * FROM admin_service_update_labourer_details($1,$2,$3,$4,$5,$6) AS Update_labourer", [id, name, mobile_no, aadhar_no, address, is_active]);
 
         if (!result || result.rows[0].Update_labourer === false) {
             throw new APIError(
@@ -1186,7 +1208,7 @@ async function delete_labourer_by_id(req, res, next) {
 
     try {
         const { labourer_id } = req.body;
-    
+
         let result = await pgClient.query("SELECT * FROM admin_service_delete_labourer_by_id($1)", [labourer_id]);
 
         if (!result) {
@@ -1210,6 +1232,935 @@ async function delete_labourer_by_id(req, res, next) {
 
 }
 
+//============================ CUSTOMER ADDRESS ============================//
+
+async function create_customer_address(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { customer_id, address, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_customer_address_details($1,$2,$3,$4)", [user_id, customer_id, address, is_active]);
+
+        if (!result) {
+            throw new APIError("The customer address are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_address_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_customer_address_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The customer address  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_customer_address_details(req, res, next) {
+
+    try {
+
+        const { id, customer_id, address, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_customer_address_details($1,$2,$3,$4) AS Update_customer_Address", [id, customer_id, address, is_active]);
+
+        if (!result || result.rows[0].Update_customer_Address === false) {
+            throw new APIError(
+                "The  customer Address details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_customer_address_by_id(req, res, next) {
+
+    try {
+        const { customer_address_id } = req.body;
+        console
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_customer_address_by_id($1)", [customer_address_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer address Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_address_details_by_id(req, res, next) {
+
+    try {
+        const { customer_address_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_customer_address_details_by_id($1)", [customer_address_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer address Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+//============================ CUSTOMER PAYMENT ============================//
+
+async function create_customer_payment(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { customer_id, payment_type, payment_direction, amount, payment_date, note } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_customer_payment($1,$2,$3,$4,$5,$6,$7)", [user_id, customer_id, payment_type, payment_direction, amount, payment_date, note]);
+
+        if (!result) {
+            throw new APIError("The customer payment are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_payment_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_customer_payment_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The customer payment  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_customer_payment_details(req, res, next) {
+
+    try {
+
+        const { id, customer_id, payment_type, payment_direction, amount, payment_date, note } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_customer_payment_details($1,$2,$3,$4,$5,$6,$7) AS Update_customer_payment", [id, customer_id, payment_type, payment_direction, amount, payment_date, note]);
+
+        if (!result || result.rows[0].Update_customer_payment === false) {
+            throw new APIError(
+                "The  customer payment details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_customer_payment_by_id(req, res, next) {
+
+    try {
+        const { customer_payment_id } = req.body;
+        console
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_customer_payment_by_id($1)", [customer_payment_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer address Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_payment_details_by_id(req, res, next) {
+
+    try {
+        const { customer_payment_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_customer_payment_details_by_id($1)", [customer_payment_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer payment Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+//============================ CUSTOMER ITEM PRICE ============================//
+
+async function create_customer_item_price(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { customer_id, item_id, weight, rate } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_customer_item_price($1,$2,$3,$4,$5)", [user_id, customer_id, item_id, weight, rate]);
+
+        if (!result) {
+            throw new APIError("The customer item price are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_item_price_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_customer_item_price_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The customer item price  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_customer_item_price_details(req, res, next) {
+
+    try {
+
+        const { id, customer_id, item_id, weight, rate } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_customer_item_price($1,$2,$3,$4,$5) AS update_customer_item_price", [id, customer_id, item_id, weight, rate]);
+
+        if (!result || result.rows[0].update_customer_item_price === false) {
+            throw new APIError(
+                "The  customer item price details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_customer_item_price_by_id(req, res, next) {
+
+    try {
+        const { item_price_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_customer_item_price($1)", [item_price_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer item price Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_customer_item_price_details_by_id(req, res, next) {
+
+    try {
+        const { item_price_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_customer_item_price_details_by_id($1)", [item_price_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The customer item price Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+//============================ LABOURER ASSIGN PLOT ============================//
+
+async function create_labourer_assign_plot(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { labourer_id, plot_id, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_labourer_assign_plot($1,$2,$3,$4)", [user_id, labourer_id, plot_id, is_active]);
+
+        if (!result) {
+            throw new APIError("The labourer assign plot are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_labourer_assign_plot_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_labourer_assign_plot_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The labourer assign plot  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_labourer_assign_plot_details(req, res, next) {
+
+    try {
+        const { id, labourer_id, plot_id, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_labourer_assign_plot($1,$2,$3,$4) AS update_labourer_assign_plot", [id, labourer_id, plot_id, is_active]);
+
+        if (!result || result.rows[0].update_labourer_assign_plot === false) {
+            throw new APIError(
+                "The  labourer assign plot details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_labourer_assign_plot_by_id(req, res, next) {
+
+    try {
+        const { assign_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_labourer_assign_plot($1)", [assign_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The labourer assign plot Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_labourer_assign_plot_details_by_id(req, res, next) {
+
+    try {
+        const { assign_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_labourer_assign_plot_details_by_id($1)", [assign_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The labourer assign plot Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+//============================ SUPPLIER ADDRESS ============================//
+
+async function create_supplier_address(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { supplier_id, address, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_supplier_address_details($1,$2,$3,$4)", [user_id, supplier_id, address, is_active]);
+
+        if (!result) {
+            throw new APIError("The supplier address are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_address_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_supplier_address_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The supplier address  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_supplier_address_details(req, res, next) {
+
+    try {
+
+        const { id, supplier_id, address, is_active } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_supplier_address_details($1,$2,$3,$4) AS Update_supplier_Address", [id, supplier_id, address, is_active]);
+
+        if (!result || result.rows[0].Update_supplier_Address === false) {
+            throw new APIError(
+                "The  supplier Address details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_supplier_address_by_id(req, res, next) {
+
+    try {
+        const { supplier_address_id } = req.body;
+        console
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_supplier_address_by_id($1)", [supplier_address_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier address Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_address_details_by_id(req, res, next) {
+
+    try {
+        const { supplier_address_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_supplier_address_details_by_id($1)", [supplier_address_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier address Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+//============================ SUPPLIER PAYMENT ============================//
+
+async function create_supplier_payment(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { supplier_id, payment_type, payment_direction, amount, payment_date, note } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_supplier_payment($1,$2,$3,$4,$5,$6,$7)", [user_id, supplier_id, payment_type, payment_direction, amount, payment_date, note]);
+
+        if (!result) {
+            throw new APIError("The supplier payment are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_payment_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_supplier_payment_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The supplier payment  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_supplier_payment_details(req, res, next) {
+
+    try {
+
+        const { id, supplier_id, payment_type, payment_direction, amount, payment_date, note } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_supplier_payment_details($1,$2,$3,$4,$5,$6,$7) AS Update_supplier_payment", [id, supplier_id, payment_type, payment_direction, amount, payment_date, note]);
+
+        if (!result || result.rows[0].Update_supplier_payment === false) {
+            throw new APIError(
+                "The  supplier payment details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_supplier_payment_by_id(req, res, next) {
+
+    try {
+        const { supplier_payment_id } = req.body;
+        console
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_supplier_payment_by_id($1)", [supplier_payment_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier address Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_payment_details_by_id(req, res, next) {
+
+    try {
+        const { supplier_payment_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_supplier_payment_details_by_id($1)", [supplier_payment_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier payment Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+
+//============================ SUPPLIER ITEM PRICE ============================//
+
+async function create_supplier_item_price(req, res, next) {
+
+    try {
+        const user_id = req.user.id;
+        const { supplier_id, item_id, weight, rate } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_create_supplier_item_price($1,$2,$3,$4,$5)", [user_id, supplier_id, item_id, weight, rate]);
+
+        if (!result) {
+            throw new APIError("The supplier item price are not Add", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_item_price_details_list(req, res, next) {
+
+    try {
+        const { pagenumber, pagesize, search } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_get_supplier_item_price_list($1,$2,$3)", [pagenumber, pagesize, search]);
+
+        if (!result) {
+            throw new APIError("The supplier item price  Details not found", httpStatus.NO_CONTENT, true, true);
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function update_supplier_item_price_details(req, res, next) {
+
+    try {
+
+        const { id, supplier_id, item_id, weight, rate } = req.body;
+
+        const result = await pgClient.query("SELECT * FROM admin_service_update_supplier_item_price($1,$2,$3,$4,$5) AS update_supplier_item_price", [id, supplier_id, item_id, weight, rate]);
+
+        if (!result || result.rows[0].update_supplier_item_price === false) {
+            throw new APIError(
+                "The  supplier item price details are not update",
+                httpStatus.BAD_REQUEST,
+                true,
+                true
+            );
+        }
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function delete_supplier_item_price_by_id(req, res, next) {
+
+    try {
+        const { item_price_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_delete_supplier_item_price($1)", [item_price_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier item price Details are not Delete",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
+
+async function get_supplier_item_price_details_by_id(req, res, next) {
+
+    try {
+        const { item_price_id } = req.body;
+
+        let result = await pgClient.query("SELECT * FROM admin_service_get_supplier_item_price_details_by_id($1)", [item_price_id]);
+
+        if (!result) {
+            throw new APIError(
+                "The supplier item price Details not found",
+                httpStatus.NO_CONTENT,
+                true,
+                true
+            );
+        }
+
+        return res.status(200).send({ sucsess: true, result: result.rows })
+    } catch (error) {
+        const err =
+            error.code === "22222"
+                ? new APIError(error.message, httpStatus.NOT_FOUND, true, true)
+                : new APIError(error.message || "Database query failed", 500, true, true);
+
+        next(err);
+    }
+
+}
 export default {
 
     create_driver,
@@ -1259,11 +2210,54 @@ export default {
     update_transporter_details,
     get_transporter_details_list,
     get_transporter_details_by_id,
+    get_transporter_name_list,
 
     create_labourer,
     delete_labourer_by_id,
     update_labourer_details,
     get_labourer_details_list,
     get_labourer_details_by_id,
+
+    create_customer_address,
+    delete_customer_address_by_id,
+    update_customer_address_details,
+    get_customer_address_details_list,
+    get_customer_address_details_by_id,
+
+    create_customer_payment,
+    get_customer_payment_details_list,
+    update_customer_payment_details,
+    delete_customer_payment_by_id,
+    get_customer_payment_details_by_id,
+
+    create_customer_item_price,
+    get_customer_item_price_details_list,
+    update_customer_item_price_details,
+    delete_customer_item_price_by_id,
+    get_customer_item_price_details_by_id,
+
+    create_labourer_assign_plot,
+    get_labourer_assign_plot_details_list,
+    update_labourer_assign_plot_details,
+    delete_labourer_assign_plot_by_id,
+    get_labourer_assign_plot_details_by_id,
+
     
+    create_supplier_address,
+    delete_supplier_address_by_id,
+    update_supplier_address_details,
+    get_supplier_address_details_list,
+    get_supplier_address_details_by_id,
+
+    create_supplier_payment,
+    get_supplier_payment_details_list,
+    update_supplier_payment_details,
+    delete_supplier_payment_by_id,
+    get_supplier_payment_details_by_id,
+
+    create_supplier_item_price,
+    get_supplier_item_price_details_list,
+    update_supplier_item_price_details,
+    delete_supplier_item_price_by_id,
+    get_supplier_item_price_details_by_id,
 }
