@@ -461,7 +461,7 @@ router.post(
 );
 
 
-//============================ CUSTOMER PAYMENT ============================//
+//============================ SUPPLIER PAYMENT ============================//
 
 router.post(
     "/supplier/payment/list",

@@ -17,7 +17,7 @@ async function get_driver_details_list(req, res, next) {
             throw new APIError("The vehicles Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -51,7 +51,7 @@ async function create_driver(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -78,7 +78,7 @@ async function get_driver_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -106,7 +106,7 @@ async function update_driver_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -133,7 +133,7 @@ async function delete_driver_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -159,7 +159,7 @@ async function get_vehicle_details_list(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -183,7 +183,7 @@ async function create_vehicle(req, res, next) {
             throw new APIError("The vehicles are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -211,7 +211,7 @@ async function update_vehicle_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -239,7 +239,7 @@ async function get_vehicle_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -267,7 +267,7 @@ async function delete_vehicle_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -292,7 +292,7 @@ async function get_customer_details_list(req, res, next) {
             throw new APIError("The vehicles Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -316,7 +316,7 @@ async function create_customer(req, res, next) {
             throw new APIError("The customer are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -344,7 +344,7 @@ async function update_customer_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -372,7 +372,7 @@ async function get_customer_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -400,7 +400,7 @@ async function delete_customer_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -425,7 +425,7 @@ async function get_supplier_details_list(req, res, next) {
             throw new APIError("The supplier Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -449,7 +449,7 @@ async function create_supplier(req, res, next) {
             throw new APIError("The customer are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -477,7 +477,7 @@ async function get_supplier_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -505,7 +505,7 @@ async function update_supplier_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -533,7 +533,7 @@ async function delete_supplier_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -558,7 +558,7 @@ async function get_item_details_list(req, res, next) {
             throw new APIError("The item Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -582,7 +582,7 @@ async function create_item(req, res, next) {
             throw new APIError("The item are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -610,7 +610,7 @@ async function get_item_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -638,7 +638,7 @@ async function update_item_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -666,7 +666,7 @@ async function delete_item_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -691,7 +691,7 @@ async function get_plot_details_list(req, res, next) {
             throw new APIError("The plot Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -715,7 +715,7 @@ async function create_plot(req, res, next) {
             throw new APIError("The plot are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -743,7 +743,7 @@ async function get_plot_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -771,7 +771,7 @@ async function update_plot_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -799,7 +799,7 @@ async function delete_plot_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -824,7 +824,7 @@ async function get_partner_details_list(req, res, next) {
             throw new APIError("The partner Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -848,7 +848,7 @@ async function create_partner(req, res, next) {
             throw new APIError("The partner are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -876,7 +876,7 @@ async function get_partner_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -904,7 +904,7 @@ async function update_partner_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -932,7 +932,7 @@ async function delete_partner_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -957,7 +957,7 @@ async function get_transporter_details_list(req, res, next) {
             throw new APIError("The transporter Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -981,7 +981,7 @@ async function create_transporter(req, res, next) {
             throw new APIError("The transporter are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1009,7 +1009,7 @@ async function update_transporter_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1037,7 +1037,7 @@ async function get_transporter_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1065,7 +1065,7 @@ async function delete_transporter_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1088,7 +1088,7 @@ async function get_transporter_name_list(req, res, next) {
             throw new APIError("The labourer Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1112,7 +1112,7 @@ async function get_labourer_details_list(req, res, next) {
             throw new APIError("The labourer Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1136,7 +1136,7 @@ async function create_labourer(req, res, next) {
             throw new APIError("The labourer are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1164,7 +1164,7 @@ async function update_labourer_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1192,7 +1192,7 @@ async function get_labourer_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1220,7 +1220,7 @@ async function delete_labourer_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1246,7 +1246,7 @@ async function create_customer_address(req, res, next) {
             throw new APIError("The customer address are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1269,7 +1269,7 @@ async function get_customer_address_details_list(req, res, next) {
             throw new APIError("The customer address  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1297,7 +1297,7 @@ async function update_customer_address_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1325,7 +1325,7 @@ async function delete_customer_address_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1353,7 +1353,7 @@ async function get_customer_address_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1379,7 +1379,7 @@ async function create_customer_payment(req, res, next) {
             throw new APIError("The customer payment are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1402,7 +1402,7 @@ async function get_customer_payment_details_list(req, res, next) {
             throw new APIError("The customer payment  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1430,7 +1430,7 @@ async function update_customer_payment_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1446,7 +1446,7 @@ async function delete_customer_payment_by_id(req, res, next) {
 
     try {
         const { customer_payment_id } = req.body;
-        console
+      
         let result = await pgClient.query("SELECT * FROM admin_service_delete_customer_payment_by_id($1)", [customer_payment_id]);
 
         if (!result) {
@@ -1458,7 +1458,7 @@ async function delete_customer_payment_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1475,8 +1475,8 @@ async function get_customer_payment_details_by_id(req, res, next) {
     try {
         const { customer_payment_id } = req.body;
 
-        let result = await pgClient.query("SELECT * FROM admin_service_get_customer_payment_details_by_id($1)", [customer_payment_id]);
-
+        const result = await pgClient.query("SELECT * FROM admin_service_get_customer_payment_details_by_id($1)", [customer_payment_id]);
+     
         if (!result) {
             throw new APIError(
                 "The customer payment Details not found",
@@ -1486,7 +1486,7 @@ async function get_customer_payment_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1512,7 +1512,7 @@ async function create_customer_item_price(req, res, next) {
             throw new APIError("The customer item price are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1535,7 +1535,7 @@ async function get_customer_item_price_details_list(req, res, next) {
             throw new APIError("The customer item price  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1563,7 +1563,7 @@ async function update_customer_item_price_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1591,7 +1591,7 @@ async function delete_customer_item_price_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1619,7 +1619,7 @@ async function get_customer_item_price_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1645,7 +1645,7 @@ async function create_labourer_assign_plot(req, res, next) {
             throw new APIError("The labourer assign plot are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1668,7 +1668,7 @@ async function get_labourer_assign_plot_details_list(req, res, next) {
             throw new APIError("The labourer assign plot  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1695,7 +1695,7 @@ async function update_labourer_assign_plot_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1723,7 +1723,7 @@ async function delete_labourer_assign_plot_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1751,7 +1751,7 @@ async function get_labourer_assign_plot_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1777,7 +1777,7 @@ async function create_supplier_address(req, res, next) {
             throw new APIError("The supplier address are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1800,7 +1800,7 @@ async function get_supplier_address_details_list(req, res, next) {
             throw new APIError("The supplier address  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1828,7 +1828,7 @@ async function update_supplier_address_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1856,7 +1856,7 @@ async function delete_supplier_address_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1884,7 +1884,7 @@ async function get_supplier_address_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1910,7 +1910,7 @@ async function create_supplier_payment(req, res, next) {
             throw new APIError("The supplier payment are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1933,7 +1933,7 @@ async function get_supplier_payment_details_list(req, res, next) {
             throw new APIError("The supplier payment  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1961,7 +1961,7 @@ async function update_supplier_payment_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -1989,7 +1989,7 @@ async function delete_supplier_payment_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2016,7 +2016,7 @@ async function get_supplier_payment_details_by_id(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2043,7 +2043,7 @@ async function create_supplier_item_price(req, res, next) {
             throw new APIError("The supplier item price are not Add", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2066,7 +2066,7 @@ async function get_supplier_item_price_details_list(req, res, next) {
             throw new APIError("The supplier item price  Details not found", httpStatus.NO_CONTENT, true, true);
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2094,7 +2094,7 @@ async function update_supplier_item_price_details(req, res, next) {
                 true
             );
         }
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2122,7 +2122,7 @@ async function delete_supplier_item_price_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
@@ -2150,7 +2150,7 @@ async function get_supplier_item_price_details_by_id(req, res, next) {
             );
         }
 
-        return res.status(200).send({ sucsess: true, result: result.rows })
+        return res.status(200).send({ success: true, result: result.rows })
     } catch (error) {
         const err =
             error.code === "22222"
