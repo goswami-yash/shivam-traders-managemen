@@ -27,6 +27,7 @@ case "$branch" in
 esac
 
 baseTag="$(cat /tmp/build_tag.out)"
+
 tagName="${baseTag}${tagSuffix}"
 
 if [ -z "$tagName" ]; then
@@ -54,8 +55,5 @@ echo "Docker image pushed successfully."
 
 echo "$tagName" > /tmp/final_image_tag.out
 
-echo "=========================================="
-echo "IMAGE READY"
-echo "=========================================="
+echo "Deployment image:"
 cat /tmp/final_image_tag.out
-echo "=========================================="

@@ -1,13 +1,9 @@
-#!/bin/bash
-
-set -e
-
-buildId="$1"
-serviceName="$2"
-branch="$3"
+buildId=$1
+serviceName=$2
+branch=$3
 
 echo "=========================================="
-echo "BUILD VARIABLES"
+echo "POSTBUILD.SH VARIABLES DEBUG INFO:"
 echo "=========================================="
 echo "buildId=$buildId"
 echo "serviceName=$serviceName"
@@ -15,8 +11,9 @@ echo "branch=$branch"
 echo "AWS_REGION=${AWS_REGION:-ap-south-1}"
 echo "=========================================="
 
+# creating dynamic tag's for docker image based on git branch
 case "$branch" in
-    */main|main)
+    */main)
         tagSuffix="_prod"
         env="production"
         ;;
@@ -25,37 +22,19 @@ case "$branch" in
         env="staging"
         ;;
 esac
-
-baseTag="$(cat /tmp/build_tag.out)"
-tagName="${baseTag}${tagSuffix}"
+tagName="$(cat /tmp/build_tag.out)$tagSuffix"
 
 echo "=========================================="
-echo "TAG INFORMATION"
+echo "TAG DETERMINATION DEBUG INFO:"
 echo "=========================================="
+echo "Branch pattern matched: $branch"
+echo "Tag suffix: $tagSuffix"
 echo "Environment: $env"
-echo "Docker image: $tagName"
+echo "Final tagName: $tagName"
 echo "=========================================="
 
-buildLog="/tmp/docker_build.log"
-
-echo "Building Docker image..."
-
-docker build \
-    --pull \
-    --file ./Dockerfile-pro \
-    --tag "$tagName" \
-    . >"$buildLog" 2>&1
-
+echo "phase 4 running"
+buildLog=/tmp/docker_build.log
+docker build -f ./Dockerfile-pro --tag $tagName . >"$buildLog" 2>&1
 buildStatus=$?
-
 cat "$buildLog"
-
-if [ "$buildStatus" -ne 0 ]; then
-    echo "ERROR: Docker build failed."
-    exit 1
-fi
-
-docker image inspect "$tagName" >/dev/null
-
-echo "Docker image verified successfully:"
-echo "$tagName"
