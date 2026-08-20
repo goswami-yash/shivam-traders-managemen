@@ -1,66 +1,94 @@
 version: 0.2
-artifacts:
-  discard-paths: true
-  files: /tmp/build.json
+
+env:
+  variables:
+    AWS_REGION: "ap-south-1"
+    ECR_REPOSITORY: "shivam-traders-backend"
+
 phases:
+
   install:
     commands:
-      # Verify and install AWS CLI if not present
+      - echo "========== INSTALL PHASE =========="
+      - echo "AWS CLI: $(aws --version)"
+      - echo "Docker: $(docker --version)"
+
       - |
-        if ! command -v aws &> /dev/null; then
-          echo "WARNING: AWS CLI not found. Attempting to install..."
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          ./aws/install
-          rm -rf aws awscliv2.zip
-        fi
-        echo "AWS CLI Version: $(aws --version)"
-      # Verify Docker is available and daemon is running
-      - |
-        if ! command -v docker &> /dev/null; then
-          echo "ERROR: Docker CLI not found. CodeBuild standard images should include Docker."
-          echo "Please ensure you're using aws/codebuild/standard image."
+        if ! docker info >/dev/null 2>&1; then
+          echo "ERROR: Docker daemon is not accessible."
           exit 1
         fi
-        echo "Docker CLI Version: $(docker --version)"
-        # Verify Docker daemon is accessible (already running in CodeBuild standard images)
-        if ! docker info &> /dev/null; then
-          echo "ERROR: Docker daemon is not accessible. Please check CodeBuild configuration."
-          exit 1
-        fi
-        echo "=========================================="
-        echo "Environment Verification Complete:"
-        echo "  AWS CLI: $(aws --version)"
-        echo "  Docker: $(docker --version)"
-        echo "  Docker Daemon: Running"
-        echo "=========================================="
+
+      - echo "Docker daemon is running"
+
   pre_build:
     commands:
-      # Print all environment variables for debugging
-      - |
-        echo "=========================================="
-        echo "ENVIRONMENT VARIABLES DEBUG INFO:"
-        echo "=========================================="
-        echo "PROJECT_ENV=${PROJECT_ENV:-NOT_SET}"
-        echo "BUILD_ID=${BUILD_ID:-NOT_SET}"
-        echo "CODEBUILD_BUILD_ID=${CODEBUILD_BUILD_ID:-NOT_SET}"
-        echo "CODEBUILD_SOURCE_VERSION=${CODEBUILD_SOURCE_VERSION:-NOT_SET}"
-        echo "AWS_REGION=${AWS_REGION:-NOT_SET}"
-        echo "CODEBUILD_LOG_PATH=${CODEBUILD_LOG_PATH:-NOT_SET}"
-        echo "=========================================="
-      # Create build tag file for Docker image tagging
-      - "echo -n ${BUILD_ID:-$CODEBUILD_BUILD_ID} > /tmp/build_id.out"
-      - 'printf "%s:%s" "493467537118.dkr.ecr.ap-south-1.amazonaws.com/shivam-traders-backend" "$(cat /tmp/build_id.out)"'
-      - 'printf "%s:%s" "493467537118.dkr.ecr.ap-south-1.amazonaws.com/shivam-traders-backend" "$(cat /tmp/build_id.out)" > /tmp/build_tag.out'
-      # Login to ECR using modern AWS CLI command (replaces deprecated get-login)
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 493467537118.dkr.ecr.ap-south-1.amazonaws.com
+      - echo "========== PRE_BUILD PHASE =========="
+
+      - echo "PROJECT_ENV=${PROJECT_ENV:-NOT_SET}"
+      - echo "BUILD_ID=${BUILD_ID:-NOT_SET}"
+      - echo "CODEBUILD_BUILD_ID=${CODEBUILD_BUILD_ID:-NOT_SET}"
+      - echo "CODEBUILD_SOURCE_VERSION=${CODEBUILD_SOURCE_VERSION:-NOT_SET}"
+      - echo "AWS_REGION=${AWS_REGION}"
+
+      # Get AWS account ID automatically
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+      - echo "AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}"
+
+      # Create ECR URI
+      - ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+      - echo "ECR_URI=${ECR_URI}"
+
+      # Build ID
+      - echo -n "${BUILD_ID:-$CODEBUILD_BUILD_ID}" > /tmp/build_id.out
+
+      - echo "BUILD_ID=$(cat /tmp/build_id.out)"
+
+      # Docker image name
+      - IMAGE_URI="${ECR_URI}/${ECR_REPOSITORY}:$(cat /tmp/build_id.out)"
+
+      - echo "IMAGE_URI=${IMAGE_URI}"
+
+      - echo "${IMAGE_URI}" > /tmp/build_tag.out
+
+      # Login to ECR
+      - echo "Logging in to Amazon ECR..."
+
+      - aws ecr get-login-password --region "${AWS_REGION}" | docker login --username AWS --password-stdin "${ECR_URI}"
+
+      - echo "ECR login successful"
+
   build:
     commands:
-      # Build Docker image - Using PROJECT_ENV instead of CODEBUILD_SOURCE_VERSION for branch detection
-      # Using BUILD_ID from /tmp/build_id.out to match Docker tag numbering
-      - 'sh bin/build.sh "$(cat /tmp/build_id.out)" "shivam-traders-backend" "${PROJECT_ENV:-$CODEBUILD_SOURCE_VERSION}"'
+      - echo "========== BUILD PHASE =========="
+
+      - echo "Build ID: $(cat /tmp/build_id.out)"
+
+      - echo "Repository: ${ECR_REPOSITORY}"
+
+      - echo "Environment: ${PROJECT_ENV:-$CODEBUILD_SOURCE_VERSION}"
+
+      - |
+        sh bin/build.sh \
+          "$(cat /tmp/build_id.out)" \
+          "${ECR_REPOSITORY}" \
+          "${PROJECT_ENV:-$CODEBUILD_SOURCE_VERSION}"
+
   post_build:
     commands:
-      # Push Docker image to ECR - Using PROJECT_ENV instead of CODEBUILD_SOURCE_VERSION for branch detection
-      # Using BUILD_ID from /tmp/build_id.out to match Docker tag numbering
-      - 'sh bin/postBuild.sh "$(cat /tmp/build_id.out)" "shivam-traders-backend" "${PROJECT_ENV:-$CODEBUILD_SOURCE_VERSION}"'
+      - echo "========== POST_BUILD PHASE =========="
+
+      - |
+        sh bin/postBuild.sh \
+          "$(cat /tmp/build_id.out)" \
+          "${ECR_REPOSITORY}" \
+          "${PROJECT_ENV:-$CODEBUILD_SOURCE_VERSION}"
+
+      - echo "========== BUILD COMPLETED =========="
+
+artifacts:
+  discard-paths: true
+  files:
+    - /tmp/build.json
