@@ -65,13 +65,19 @@ phases:
         export ECR_REGISTRY
 
       - |
-        echo "Creating build ID..."
+        BUILD_NUMBER="${CODEBUILD_BUILD_NUMBER}"
 
-        BUILD_TAG="${BUILD_ID:-$CODEBUILD_BUILD_ID}"
+        if [ -z "$BUILD_NUMBER" ]; then
+          echo "ERROR: CODEBUILD_BUILD_NUMBER is empty."
+          exit 1
+        fi
+
+        BUILD_TAG="${BUILD_NUMBER}_prod"
 
         echo -n "$BUILD_TAG" > /tmp/build_id.out
 
-        echo "BUILD_TAG=$BUILD_TAG"
+        echo "CODEBUILD_BUILD_NUMBER=${BUILD_NUMBER}"
+        echo "BUILD_TAG=${BUILD_TAG}"
 
       - |
         BUILD_TAG=$(cat /tmp/build_id.out)
