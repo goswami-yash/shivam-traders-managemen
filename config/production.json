@@ -1,7 +1,10 @@
 {
   "App": {
     "config": {
-      "port": 3021
+      "port": 3021,
+      "sessionSecret": "ShivamTraders@7505",
+      "imageUploadPath_type": "r2" 
+     
     },
     "db": {
       "host": "192.168.1.65",
@@ -11,8 +14,30 @@
       "name": "shivam_v2"
     },
     "redis": {
-      "host": "192.168.1.65",
+      "host": "65.0.107.128",
       "port": "6379"
+    },
+  
+    "cloude_r2":{
+      "PROVIDER": "r2",
+      "CLOUDFLARE_ACCOUNT_ID": "d38c681b8ea7ed56a9130b9abea39e9e" ,
+      "R2_BUCKET":"shree-keshar-world",
+      "R2_ACCESS_KEY" : "be2ab25c22aaa3f43fe201d8de4e42e3",
+      "R2_SECRET_KEY" : "6c71674e3c78a5171fe057e4fc7c8436b199729a99779736842d6e733b818b0e",
+      "R2_REGION" : "auto",
+      "PUBLIC_BUCKET_KEY" : "https://pub-1ab989e0fe65425c9a82625d63563afa.r2.dev"
+    },
+    "cloude_aws": {
+      "PROVIDER": "aws",
+      "AWS_ACCOUNT_ID": "xxxx", 
+      "AWS_ACCESS_KEY": "xxxx",
+      "AWS_SECRET_KEY": "xxxx",
+      "AWS_REGION": "ap-south-1",
+      "AWS_BUCKET": "shivam-traders"
+    },
+    "email" :{
+      "MAIL_USER" : "yash16102004@@gmail.com",
+      "MAIL_PASS" : "ldgi wegn mrdz vrbg"
     }
   }
 }
