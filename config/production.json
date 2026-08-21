@@ -7,11 +7,11 @@
      
     },
     "db": {
-      "host": "192.168.1.65",
-      "port": "5434",
+      "host": "sivam-traders.cdcqqsyew7ac.ap-south-1.rds.amazonaws.com",
+      "port": "5432",
       "user": "postgres",
-      "password": "shree",
-      "name": "shivam_v2"
+      "password": "Yash1610",
+      "name": "sivam_traders"
     },
     "redis": {
       "host": "172.31.8.21",
