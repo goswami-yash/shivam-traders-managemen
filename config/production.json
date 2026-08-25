@@ -12,7 +12,7 @@
       "user": "postgres",
       "password": "Yash1610",
       "name": "sivam_traders",
-      "ssl": false
+      "ssl": true
     },
     "redis": {
       "host": "172.31.8.21",
