@@ -254,7 +254,8 @@ const staticOrigins = [
   // LAN IPs
   "http://192.168.1.66:8080",
   "http://192.168.1.66:80",
-  "http://192.168.1.65:8080"
+  "http://192.168.1.65:8080",
+  "http://65.0.107.128:8080"
 ];
 
 const buildAllowedOrigins = () => {
