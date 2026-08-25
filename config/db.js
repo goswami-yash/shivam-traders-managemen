@@ -13,9 +13,12 @@ const pool = new pg.Pool({
     port:  config.get('App.db.port'),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 1000 * 120,
+    ssl: config.get("App.db.ssl")
+    ? { rejectUnauthorized: false }
+    : false
 });
 
-//console.log("db",pool.options);
+// console.log("pgAdmin_connectoin",pool.options)
 // Fix bigint parsing
 pg.types.setTypeParser(20, (value) => parseInt(value, 10));
 
