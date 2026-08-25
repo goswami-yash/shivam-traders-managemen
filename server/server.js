@@ -254,7 +254,8 @@ const staticOrigins = [
   // LAN IPs
   "http://192.168.1.66:8080",
   "http://192.168.1.66:80",
-  "http://192.168.1.65:8080"
+  "http://192.168.1.65:8080",
+  "http://65.0.107.128:8080"
 ];
 
 const buildAllowedOrigins = () => {
@@ -302,7 +303,8 @@ app.use(
       if (
         origin.startsWith("http://localhost:") ||
         origin.startsWith("http://127.0.0.1:") ||
-        origin.startsWith("http://192.168.")
+        origin.startsWith("http://192.168.") ||
+        origin.startsWith("http://65.0.") 
       ) {
         return callback(null, true);
       }
