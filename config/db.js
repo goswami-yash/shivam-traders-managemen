@@ -13,6 +13,9 @@ const pool = new pg.Pool({
     port:  config.get('App.db.port'),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 1000 * 120,
+    ssl: config.get("App.config.database.ssl")
+    ? { rejectUnauthorized: false }
+    : false
 });
 
 //console.log("db",pool.options);

@@ -11,7 +11,8 @@
       "port": "5432",
       "user": "postgres",
       "password": "Yash1610",
-      "name": "sivam_traders"
+      "name": "sivam_traders",
+      "ssl": false
     },
     "redis": {
       "host": "172.31.8.21",
