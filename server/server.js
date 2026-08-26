@@ -248,13 +248,13 @@ const staticOrigins = [
   "http://localhost:8080",
   "http://localhost:3000",
   "http://localhost:80",
-  "http://127.0.0.1:8080",
-  "http://127.0.0.1:5173",
-  "http://127.0.0.1:8080",
+  "http://127.0.0.0:8080",
+  "http://127.0.0.0:5173",
+  "http://127.0.0.0:8080",
   // LAN IPs
-  "http://192.168.1.66:8080",
-  "http://192.168.1.66:80",
-  "http://192.168.1.65:8080",
+  "http://192.168.0.66:8080",
+  "http://192.168.0.66:80",
+  "http://192.168.0.65:8080",
   "http://65.0.107.128:8080"
 ];
 
@@ -386,7 +386,7 @@ app.use(async (req, res, next) => {
       rolling: true,
       cookie: {
         ...baseSessionCookie,
-        secure: secureCookie,
+        secure: false,
       },
     });
   }
