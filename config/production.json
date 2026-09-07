@@ -15,7 +15,7 @@
       "ssl": true
     },
     "redis": {
-      "host": "172.31.8.21",
+      "host": "sk-redis-krucjd.serverless.aps1.cache.amazonaws.com",
       "port": "6379"
     },
   
@@ -37,7 +37,7 @@
       "AWS_BUCKET": "shivam-traders"
     },
     "email" :{
-      "MAIL_USER" : "yash16102004@@gmail.com",
+      "MAIL_USER" : "yash16102004@gmail.com",
       "MAIL_PASS" : "ldgi wegn mrdz vrbg"
     }
   }
