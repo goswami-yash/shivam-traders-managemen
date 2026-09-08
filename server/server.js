@@ -305,7 +305,8 @@ app.use(
         origin.startsWith("http://localhost:") ||
         origin.startsWith("http://127.0.0.1:") ||
         origin.startsWith("http://192.168.") ||
-        origin.startsWith("http://65.0.") 
+        origin.startsWith("http://65.0.") ||
+        origin.startsWith("sivamtraders-load-balancer")
       ) {
         return callback(null, true);
       }
